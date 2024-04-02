@@ -62,42 +62,33 @@ function handleDrawOperationEvent() {
     let operation = document.getElementById('operation-select').value;
     // console.log(operation);
 
-    var v3_x_coord = 0.0;
-    var v3_y_coord = 0.0;
-    var v4_x_coord = 0.0;
-    var v4_y_coord = 0.0;
+    let v3 = new Vector3();
+    let v4 = new Vector3();
+
+    v3.set(v1);
+    v4.set(v2);
+
     if(operation === "add") {
-        v3_x_coord = parseFloat(v1_x_coord) + parseFloat(v2_x_coord);
-        v3_y_coord = parseFloat(v1_y_coord) + parseFloat(v2_y_coord);
+        v3.add(v2);
     } else if(operation === "sub") {
-        v3_x_coord = parseFloat(v1_x_coord) - parseFloat(v2_x_coord);
-        v3_y_coord = parseFloat(v1_y_coord) - parseFloat(v2_y_coord);
+        v3.sub(v2);
     } else if(operation === "mul") {
-        v3_x_coord = parseFloat(v1_x_coord) * parseFloat(scalar);
-        v3_y_coord = parseFloat(v1_y_coord) * parseFloat(scalar);
-        v4_x_coord = parseFloat(v2_x_coord) * parseFloat(scalar);
-        v4_y_coord = parseFloat(v2_y_coord) * parseFloat(scalar);
+        v3.mul(scalar);
+        v4.mul(scalar);
     } else if(operation === "div") {
-        v3_x_coord = parseFloat(v1_x_coord) / parseFloat(scalar);
-        v3_y_coord = parseFloat(v1_y_coord) / parseFloat(scalar);
-        v4_x_coord = parseFloat(v2_x_coord) / parseFloat(scalar);
-        v4_y_coord = parseFloat(v2_y_coord) / parseFloat(scalar);
+        v3.div(scalar);
+        v4.div(scalar);
     } else if(operation === "mag") {
         console.log("Magnitude v1: " + v1.magnitude());
         console.log("Magnitude v2: " + v2.magnitude());
     } else if(operation === "nor") {
-        v3_x_coord = v1.normalize().elements[0];
-        v3_y_coord = v1.normalize().elements[1];
-        v4_x_coord = v2.normalize().elements[0];
-        v4_y_coord = v2.normalize().elements[1];
+       v3.normalize();
+       v4.normalize();
     } else if(operation === "ang") {
         angleBetween(v1, v2);
     } else if(operation === "are") {
         areaTriangle(v1, v2);
     }
-
-    let v3 = new Vector3([v3_x_coord, v3_y_coord, 0]);
-    let v4 = new Vector3([v4_x_coord, v4_y_coord, 0]);
     
     drawVector(v3, "green");
     drawVector(v4, "green");
