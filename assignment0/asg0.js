@@ -9,6 +9,16 @@ function drawVector(v, color) {
     ctx.stroke();
 }
 
+function angleBetween(v1, v2) {
+    let a = 180/(Math.PI) * Math.acos(Vector3.dot(v1, v2)/(v1.magnitude() * v2.magnitude()));
+    console.log("Angle: " + a);
+}
+
+function areaTriangle(v1, v2) {
+    let c = Vector3.cross(v1, v2).magnitude();
+    console.log("Area: " + c/2);
+}
+
 function handleDrawEvent() {
     var canvas = document.getElementById('example');
     var ctx = canvas.getContext('2d');
@@ -80,7 +90,12 @@ function handleDrawOperationEvent() {
         v3_y_coord = v1.normalize().elements[1];
         v4_x_coord = v2.normalize().elements[0];
         v4_y_coord = v2.normalize().elements[1];
+    } else if(operation === "ang") {
+        angleBetween(v1, v2);
+    } else if(operation === "are") {
+        areaTriangle(v1, v2);
     }
+
     let v3 = new Vector3([v3_x_coord, v3_y_coord, 0]);
     let v4 = new Vector3([v4_x_coord, v4_y_coord, 0]);
     
