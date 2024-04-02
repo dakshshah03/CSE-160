@@ -72,6 +72,14 @@ function handleDrawOperationEvent() {
         v3_y_coord = parseFloat(v1_y_coord) / parseFloat(scalar);
         v4_x_coord = parseFloat(v2_x_coord) / parseFloat(scalar);
         v4_y_coord = parseFloat(v2_y_coord) / parseFloat(scalar);
+    } else if(operation === "mag") {
+        console.log("Magnitude v1: " + v1.magnitude());
+        console.log("Magnitude v2: " + v2.magnitude());
+    } else if(operation === "nor") {
+        v3_x_coord = v1.normalize().elements[0];
+        v3_y_coord = v1.normalize().elements[1];
+        v4_x_coord = v2.normalize().elements[0];
+        v4_y_coord = v2.normalize().elements[1];
     }
     let v3 = new Vector3([v3_x_coord, v3_y_coord, 0]);
     let v4 = new Vector3([v4_x_coord, v4_y_coord, 0]);
@@ -96,4 +104,7 @@ function main() {
     // Draw a blue rectangle <- (3)
     ctx.fillStyle = 'rgba(0, 0, 0, 1.0)'; // Set a blue color
     ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill a rectangle with the color
+
+    var v1 = new Vector3([2.25, 2.25, 0])
+    drawVector(v1, "red");
 }
