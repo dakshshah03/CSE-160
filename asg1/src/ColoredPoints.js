@@ -59,18 +59,23 @@ var g_points = [];  // The array for the position of a mouse press
 var g_colors = [];  // The array to store the color of a point
 function handleClicks(ev) {
   let [x, y] = convertMouseToEventCoords(ev);
+  let r = document.getElementById('red-slider').value;
+  let g = document.getElementById('green-slider').value;
+  let b = document.getElementById('blue-slider').value;
 
   // Store the coordinates to g_points array
   g_points.push([x, y]);
 
-  // Store the coordinates to g_points array
-  if (x >= 0.0 && y >= 0.0) {      // First quadrant
-    g_colors.push([1.0, 0.0, 0.0, 1.0]);  // Red
-  } else if (x < 0.0 && y < 0.0) { // Third quadrant
-    g_colors.push([0.0, 1.0, 0.0, 1.0]);  // Green
-  } else {                         // Others
-    g_colors.push([1.0, 1.0, 1.0, 1.0]);  // White
-  }
+  // Store the colors to g_colors array
+  g_colors.push([r/100, g/100, b/100, 1.0]);
+
+  // if (x >= 0.0 && y >= 0.0) {      // First quadrant
+  //   g_colors.push([1.0, 0.0, 0.0, 1.0]);  // Red
+  // } else if (x < 0.0 && y < 0.0) { // Third quadrant
+  //   g_colors.push([0.0, 1.0, 0.0, 1.0]);  // Green
+  // } else {                         // Others
+  //   g_colors.push([1.0, 1.0, 1.0, 1.0]);  // White
+  // }
 
   renderAllShapes();
 }
