@@ -22,8 +22,6 @@ class Triangle {
         // gl.drawArrays(gl.POINTS, 0, 1);
         let delta = this.size/200.0;
         drawTriangle([xy[0], xy[1], xy[0] - delta/2, xy[1] - delta*Math.sqrt(3)/2, xy[0] + delta/2, xy[1] - delta*Math.sqrt(3)/2]);
-
-
     }
 }
 

@@ -30,6 +30,7 @@ const CIRCLE = 2;
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 10.0;
 let g_selectedShape = POINT;
+let g_selectedSegmentCount = 10.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -84,6 +85,8 @@ function addActionListeners() {
   document.getElementById('blue-slider').addEventListener('mouseup', function() {g_selectedColor[2] = this.value/255; });
 
   document.getElementById('shape-size-slider').addEventListener('mouseup', function() {g_selectedSize = this.value; });
+
+  document.getElementById('segment-count-slider').addEventListener('mouseup', function() {g_selectedSegmentCount = this.value; });
 }
 
 
@@ -108,6 +111,9 @@ function handleClicks(ev) {
     point = new Point();
   } else if (g_selectedShape == TRIANGLE) {
     point = new Triangle();
+  } else if (g_selectedShape == CIRCLE) {
+    point = new Circle();
+    point.segments = g_selectedSegmentCount;
   }
 
   point.position = [x, y];
