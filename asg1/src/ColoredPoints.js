@@ -23,9 +23,13 @@ let a_Position;
 let u_FragColor;
 let u_Size;
 
+
+const POINT = 0;
+const TRIANGLE = 1;
+const CIRCLE = 2;
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 10.0;
-let g_selectedShape = "square";
+let g_selectedShape = POINT;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -70,6 +74,9 @@ function connectVariablesToGLSL() {
 function addActionListeners() {
   // button events
   document.getElementById('clear-canvas').onclick = function() {g_shapesList = []; renderAllShapes();};
+  document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
+  document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
+  document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
 
   // slider events
   document.getElementById('red-slider').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/255; });
@@ -96,11 +103,22 @@ function handleClicks(ev) {
   let [x, y] = convertMouseToEventCoords(ev);
 
   // create and store a point
-  let point = new Point();
+  let point;
+  if(g_selectedShape == POINT) {
+    point = new Point();
+  } else if (g_selectedShape == TRIANGLE) {
+    point = new Triangle();
+  }
+
   point.position = [x, y];
   point.color = g_selectedColor.slice();
   point.size = g_selectedSize;
   g_shapesList.push(point);
+  // let point = new Triangle();
+  // point.position = [x, y];
+  // point.color = g_selectedColor.slice();
+  // point.size = g_selectedSize;
+  // g_shapesList.push(point);
 
   // // Store the coordinates to g_points array
   // g_points.push([x, y]);
