@@ -31,7 +31,7 @@ function setUpWebGL() {
   // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
   // Get the rendering context for WebGL
-  gl = getWebGLContext(canvas);
+  gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
 
   if (!gl) {
     console.log('Failed to get the rendering context for WebGL');
@@ -69,29 +69,24 @@ function connectVariablesToGLSL() {
 
 function addActionListeners() {
   // button events
+  document.getElementById('clear-canvas').onclick = function() {g_shapesList = []; renderAllShapes();};
 
   // slider events
   document.getElementById('red-slider').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/255; });
   document.getElementById('green-slider').addEventListener('mouseup', function() {g_selectedColor[1] = this.value/255; });
   document.getElementById('blue-slider').addEventListener('mouseup', function() {g_selectedColor[2] = this.value/255; });
 
-  document.getElementById('shape-size-slider').addEventListener('mouseup', function() {g_selectedSize = this.value; })
-}
-
-class Point {
-  constructor() {
-    this.type = "point";
-    this.position = [0.0, 0.0, 0.0];
-    this.color = [1.0, 1.0, 1.0, 1.0];
-
-  }
+  document.getElementById('shape-size-slider').addEventListener('mouseup', function() {g_selectedSize = this.value; });
 }
 
 
-var g_points = [];  // The array for the position of a mouse press
-var g_colors = [];  // The array to store the color of a point
-var g_sizes = [];
-var g_shapes = [];
+
+// var g_points = [];  // The array for the position of a mouse press
+// var g_colors = [];  // The array to store the color of a point
+// var g_sizes = [];
+
+var g_shapesList = [];
+
 function handleClicks(ev) {
   // let r = document.getElementById('red-slider').value;
   // let g = document.getElementById('green-slider').value;
@@ -99,16 +94,22 @@ function handleClicks(ev) {
   // addActionListeners();
 
   let [x, y] = convertMouseToEventCoords(ev);
-  // gl_point_size = document.getElementById('shape-size-slider').value;
 
-  // Store the coordinates to g_points array
-  g_points.push([x, y]);
+  // create and store a point
+  let point = new Point();
+  point.position = [x, y];
+  point.color = g_selectedColor.slice();
+  point.size = g_selectedSize;
+  g_shapesList.push(point);
 
-  // Store the colors to g_colors array
-  g_colors.push(g_selectedColor.slice());
+  // // Store the coordinates to g_points array
+  // g_points.push([x, y]);
 
-  // Store the size to g_sizes array
-  g_sizes.push(g_selectedSize);
+  // // Store the colors to g_colors array
+  // g_colors.push(g_selectedColor.slice());
+
+  // // Store the size to g_sizes array
+  // g_sizes.push(g_selectedSize);
   // if (x >= 0.0 && y >= 0.0) {      // First quadrant
   //   g_colors.push([1.0, 0.0, 0.0, 1.0]);  // Red
   // } else if (x < 0.0 && y < 0.0) { // Third quadrant
@@ -132,27 +133,28 @@ function convertMouseToEventCoords(ev) {
 }
 
 function renderAllShapes() {
+  var start_time = performance.now();
+
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  var len = g_points.length;
+  var len = g_shapesList.length;
   for(var i = 0; i < len; i++) {
-    var xy = g_points[i];
-    var rgba = g_colors[i];
-    var size = g_sizes[i];
-
-    // Pass the position of a point to a_Position variable
-    gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-    // Pass the color of a point to u_FragColor variable
-    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-
-    gl.uniform1f(u_Size, size);
-
-    // Draw
-    gl.drawArrays(gl.POINTS, 0, 1);
+    g_shapesList[i].render();
   }
+
+  var duration = performance.now() - start_time;
+  sendTextToHTML("numdot: " + len + " ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
 }
 
+function sendTextToHTML(txt, htmlID) {
+  var htmlElm = document.getElementById(htmlID);
+  if(!htmlID) {
+    console.log("Failed to get " + htmlID + " from HTML.");
+    return;
+  }
+  htmlElm.innerHTML = txt;
+}
 
 function main() {
   // set up canvas and gl
@@ -161,6 +163,7 @@ function main() {
   connectVariablesToGLSL();
 
   canvas.onmousedown = handleClicks //function(ev){ click(ev, gl, canvas, a_Position, u_FragColor) };
+  canvas.onmousemove = function(ev) {if(ev.buttons == 1) {handleClicks(ev);};};
 
   addActionListeners();
 
