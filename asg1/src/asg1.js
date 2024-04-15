@@ -78,6 +78,7 @@ function addActionListeners() {
   document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
   document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
   document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
+  document.getElementById('generate-picture').onclick = function() {generatePicture()};
 
   // slider events
   document.getElementById('red-slider').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/255; });
@@ -120,27 +121,6 @@ function handleClicks(ev) {
   point.color = g_selectedColor.slice();
   point.size = g_selectedSize;
   g_shapesList.push(point);
-  // let point = new Triangle();
-  // point.position = [x, y];
-  // point.color = g_selectedColor.slice();
-  // point.size = g_selectedSize;
-  // g_shapesList.push(point);
-
-  // // Store the coordinates to g_points array
-  // g_points.push([x, y]);
-
-  // // Store the colors to g_colors array
-  // g_colors.push(g_selectedColor.slice());
-
-  // // Store the size to g_sizes array
-  // g_sizes.push(g_selectedSize);
-  // if (x >= 0.0 && y >= 0.0) {      // First quadrant
-  //   g_colors.push([1.0, 0.0, 0.0, 1.0]);  // Red
-  // } else if (x < 0.0 && y < 0.0) { // Third quadrant
-  //   g_colors.push([0.0, 1.0, 0.0, 1.0]);  // Green
-  // } else {                         // Others
-  //   g_colors.push([1.0, 1.0, 1.0, 1.0]);  // White
-  // }
 
   renderAllShapes();
 }
@@ -180,6 +160,38 @@ function sendTextToHTML(txt, htmlID) {
   htmlElm.innerHTML = txt;
 }
 
+function generatePicture() {
+  // clear the canvas
+  g_shapesList = []; 
+  renderAllShapes();
+
+  //draw the picture
+  // for(let i = 0; i < 25; i++) {
+  //   g_shapesList.push(new Triangle());
+  // }
+
+  // g_shapesList[0].position = [-.5, 0.8, -.5, 0.95, -0.6, 0.95];
+
+  // cloud
+  drawTriangleColor([-.5, 0.8, -.5, 0.95, -0.8, 0.88], [110.0, 121.0, 138.0, 1.0]);
+  drawTriangleColor([-.5, 0.8, -.5, 0.95, 0.1, 0.95], [73.0, 82.0, 97.0, 1.0]);
+  drawTriangleColor([-.5, 0.8, .4, 0.67, 0.1, 0.95], [93.0, 100.0, 110.0, 1.0]);
+  drawTriangleColor([-.5, 0.8, .4, 0.67, -0.7, 0.5], [110.0, 121.0, 138.0, 1.0]);
+  drawTriangleColor([-.5, 0.8, -.9, 0.7, -0.7, 0.5], [100.0, 110.0, 133.0, 1.0]);
+  drawTriangleColor([-.5, 0.8, -.9, 0.7, -0.8, 0.88], [73.0, 82.0, 97.0, 1.0]);
+
+  // draw water
+  drawTriangleColor([-1.0, -0.3, -1.0, -0.1, 0.5, -0.1], [32.0, 65.0, 190., 1.0]);
+  drawTriangleColor([-1.0, -0.3, -1.0, -0.9, 0.5, -0.1], [7.0, 57.0, 138.0, 1.0]);
+  drawTriangleColor([0.4, -0.9, -1.0, -0.9, 0.5, -0.1], [54.0, 98.0, 168.0, 1.0]);
+  drawTriangleColor([0.4, -0.9, 1.0, -0.9, 0.5, -0.1], [7.0, 57.0, 138.0, 1.0]);
+  drawTriangleColor([1, -0.9, 1.0, -0.1, 0.5, -0.1], [32.0, 65.0, 190., 1.0]);
+
+
+  // renderAllShapes();
+
+}
+
 function main() {
   // set up canvas and gl
   setUpWebGL();
@@ -196,4 +208,5 @@ function main() {
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT);
+  generatePicture();
 }
