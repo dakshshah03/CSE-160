@@ -1,4 +1,9 @@
-// ColoredPoint.js (c) 2012 matsuda
+// Daksh Shah
+// ID: 1953946
+// dakshah@ucsc.edu
+// asg1.js
+
+
 // Vertex shader program
 var VSHADER_SOURCE = `
   attribute vec4 a_Position;
@@ -31,6 +36,10 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 10.0;
 let g_selectedShape = POINT;
 let g_selectedSegmentCount = 10.0;
+let rgb_mode = false;
+let rgb_color = [1, 128, 255];
+let rainbow_mode = false;
+let rainbow_color = 0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -79,7 +88,9 @@ function addActionListeners() {
   document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
   document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
   document.getElementById('generate-picture').onclick = function() {generatePicture()};
-
+  document.getElementById('rgb').addEventListener('change', function() {if(this.checked) {rgb_mode = true;} else {rgb_mode = false;};});
+  document.getElementById('rainbow').addEventListener('change', function() {if(this.checked) {rainbow_mode = true;} else {rainbow_mode = false;};});
+  
   // slider events
   document.getElementById('red-slider').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/255; });
   document.getElementById('green-slider').addEventListener('mouseup', function() {g_selectedColor[1] = this.value/255; });
@@ -95,6 +106,24 @@ function addActionListeners() {
 // var g_points = [];  // The array for the position of a mouse press
 // var g_colors = [];  // The array to store the color of a point
 // var g_sizes = [];
+
+function getRainbowColor() {
+  rainbow_color += 5;
+  rainbow_color = rainbow_color%1536;
+  if(rainbow_color <= 255) {
+    return [1.0, 0, (rainbow_color%256)/256, 1.0];
+  } else if(rainbow_color <= 511) {
+    return [(256 - (rainbow_color%256))/256, 0, 1.0, 1.0];
+  } else if(rainbow_color <= 767) {
+    return [0, (rainbow_color%256)/256, 1.0, 1.0];
+  } else if(rainbow_color <= 1023) {
+    return [0, 1.0, (256 - (rainbow_color%256))/256, 1.0];
+  } else if(rainbow_color <= 1279) {
+    return [(rainbow_color%256)/256, 1.0, 0, 1.0];
+  } else if(rainbow_color <= 1535) {
+    return [1.0, (256 - (rainbow_color%256))/256, 0, 1.0];
+  }
+}
 
 var g_shapesList = [];
 
@@ -118,7 +147,14 @@ function handleClicks(ev) {
   }
 
   point.position = [x, y];
-  point.color = g_selectedColor.slice();
+  if(rgb_mode == true) {
+    rgb_color = [((rgb_color[0] + 1.2*g_selectedColor[0])%256), ((rgb_color[1] + 1.2*g_selectedColor[1])%256), ((rgb_color[2] + 1.2*g_selectedColor[2])%256), 1.0];
+    point.color = [rgb_color[0]/255, rgb_color[1]/255, rgb_color[2]/255, 1.0];
+  } else if(rainbow_mode == true) {
+    point.color = getRainbowColor();
+  } else {
+    point.color = g_selectedColor.slice();
+  }
   point.size = g_selectedSize;
   g_shapesList.push(point);
 

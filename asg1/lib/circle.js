@@ -30,8 +30,8 @@ class Circle {
             let centerPT = [xy[0], xy[1]];
             let angle1 = angle;
             let angle2 = angle + angle_step;
-            let vec1 = [delta * Math.cos(angle1*Math.PI/180), delta * Math.sin(angle1*Math.PI/180)];
-            let vec2 = [delta * Math.cos(angle2*Math.PI/180), delta * Math.sin(angle2*Math.PI/180)];
+            let vec1 = [delta * Math.cos(angle1*Math.PI/180)/2, delta * Math.sin(angle1*Math.PI/180)/2];
+            let vec2 = [delta * Math.cos(angle2*Math.PI/180)/2, delta * Math.sin(angle2*Math.PI/180)/2];
             let pt1 = [centerPT[0] + vec1[0], centerPT[1] + vec1[1]];
             let pt2 = [centerPT[0] + vec2[0], centerPT[1] + vec2[1]];
 

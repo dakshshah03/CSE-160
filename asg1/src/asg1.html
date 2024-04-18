@@ -1,11 +1,39 @@
+<!--
+Daksh Shah
+ID: 1953946
+dakshah@ucsc.edu
+asg1.js
+
+Notes to the grader:
+- There are two modified options. Rainbow mode, which is turned on with a checkbox below, and Wack Gradient Color Mode.<br>
+        Rainbow mode goes through the rainbow for the color, while the second mode will go through a color gradient based on the <br>
+        color slider values. However, it is called "wack" for a reason, which you may see when using this mode.
+
+- To view the drawn picture, click the "Generate Picture" button. This is meant to depict a bridge with the moon shining over the ocean and a cloud in the air.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Change a point color</title>
+    <title>Daksh Shah CSE160 Assignment 1</title>
   </head>
 
   <body onload="main()">
+    Daksh Shah
+    <br>
+    dakshah@ucsc.edu
+    <br><br>
+    Notes to Grader:
+    <ul>
+      <li>There are two modified options. Rainbow mode, which is turned on with a checkbox below, and Wack Gradient Color Mode.<br>
+        Rainbow mode goes through the rainbow for the color, while the second mode will go through a color gradient based on the <br>
+        color slider values. However, it is called "wack" for a reason, which you may see when using this mode.
+      </li>
+      <li>To view the drawn picture, click the "Generate Picture" button. This is meant to depict a bridge with the moon shining over the ocean and a cloud in the air.</li>
+    </ul>
+
+
     <canvas id="webgl" width="400" height="400">
     Please use a browser that supports "canvas"
     </canvas>
@@ -32,10 +60,13 @@
     <br>
     Shape Color:
     <br>
+    Wack Gradient Color Mode (Use the color sliders to change the pattern): <input type="checkbox" id="rgb">
+    <br>
+    Rainbow Mode: <input type="checkbox" id="rainbow">
+    <br>
     Red <input type="range" min="0" max="255" value="255" class="slider" id="red-slider">
     Green <input type="range" min="0" max="255" value="255" class="slider" id="green-slider">
     Blue <input type="range" min="0" max="255" value="255" class="slider" id="blue-slider">
-    <br>
     <br>
     Shape Size: <input type="range" min="1" max="50" value="10" class="slider" id="shape-size-slider">
     (Circles) Segment Count: <input type="range" min="3" max="50" value="10" class="slider" id="segment-count-slider">
