@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 
@@ -10,6 +11,7 @@ let camera;
 let loader;
 let objLoader;
 let controls;
+let mtlloader;
 
 function setUpScene() {
     canvas = document.querySelector('#c');
@@ -19,6 +21,7 @@ function setUpScene() {
 
     loader = new THREE.TextureLoader();
     objLoader = new OBJLoader();
+    mtlloader = new MTLLoader();
 
     renderer = new THREE.WebGLRenderer({antialias: true, canvas});
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -27,7 +30,7 @@ function setUpScene() {
     const fov = 75;
     const aspect = 2;  // the canvas default
     const near = 0.1;
-    const far = 5;
+    const far = 10; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
     camera.position.z = 2;
 
@@ -57,49 +60,63 @@ function createMaterials(files) {
     return materials;
 }
 
-function makeInstance(geometry, files, x) {
-    // const texture = loader.load( './../textures/dab.jpg' );
-    // texture.colorSpace = THREE.SRGBColorSpace;
+function makeInstance(geometry, files, translation, rotation, axis, scale) {
+    // add object to scene
     let materials = createMaterials(files);
-   
-    const cube = new THREE.Mesh(geometry, materials);
-    scene.add(cube);
-   
-    cube.position.x = x;
-   
-    return cube;
+    const obj = new THREE.Mesh(geometry, materials);
+    scene.add(obj);
+
+    // transformations
+    geometry.translate(translation[0], translation[1], translation[2]);
+
+    if(axis === 'x') {
+        geometry.rotateX(rotation);
+    } else if(axis === 'y') {
+        geometry.rotateY(rotation);
+    } else if(axis === 'z') {
+        geometry.rotateZ(rotation);
+    }
+
+    geometry.scale(scale[0], scale[1], scale[2]);
+
+    return obj;
   }
+
 
 function main() {
     setUpScene();
-    
 
-    const boxWidth = 1;
-    const boxHeight = 1;
-    const boxDepth = 1;
-    const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-    // const material = new THREE.MeshBasicMaterial({color: 0x44aa88});
-    let files = ["./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp"];
+    const cube_geometry = new THREE.BoxGeometry(1, 1, 1);
+    let cube_texture_1 = ["./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp"];
 
-    const cubes = [
-        // makeInstance(geometry, files,  0),
+
+    // creates an instance of all non-custom files
+    const objects = [
+        makeInstance(cube_geometry, cube_texture_1, [0, 3, 0], 0, 'x', [1, 1, 1]),
         // makeInstance(geometry, files, -2),
         // makeInstance(geometry, files,  2),
     ];
-    
-    objLoader.load('./../textures/models/car.obj', (root) => {
-        scene.add(root);
+
+    mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
+        mtl.preload();
+        objLoader.setMaterials(mtl);
+        objLoader.load('./../textures/models/GTR.obj', (root) => {
+            objLoader.scale.setScalar(0.5, 0.5, 0.5);
+            scene.add(root);
+        });
     });
+    
+    
 
     function render(time) {
         time *= 0.001;  // convert time to seconds
        
-        cubes.forEach((cube, ndx) => {
-          const speed = 1 + ndx * .1;
-          const rot = time * speed;
-          cube.rotation.x = rot;
-          cube.rotation.y = rot;
-        });
+        // objects.forEach((obj, ndx) => {
+        //   const speed = 1 + ndx * .1;
+        //   const rot = time * speed;
+        //   obj.rotation.x = rot;
+        //   obj.rotation.y = rot;
+        // });
         
         renderer.render(scene, camera);
         requestAnimationFrame(render);
