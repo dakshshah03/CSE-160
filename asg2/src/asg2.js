@@ -7,10 +7,10 @@
 // Vertex shader program
 var VSHADER_SOURCE = `
   attribute vec4 a_Position;
-  uniform float u_Size;
+  uniform mat4 u_ModelMatrix;
+  uniform mat4 u_GlobalRotateMatrix;
   void main() {
-    gl_Position = a_Position;
-    gl_PointSize = u_Size;
+    gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -27,6 +27,8 @@ let gl;
 let a_Position;
 let u_FragColor;
 let u_Size;
+let u_ModelMatrix;
+let u_GlobalRotateMatrix;
 
 
 const POINT = 0;
@@ -74,11 +76,27 @@ function connectVariablesToGLSL() {
     return;
   }
 
-  u_Size = gl.getUniformLocation(gl.program, 'u_Size');
-  if(!u_Size) {
-    console.log('Failed to get the storage location of u_Size');
+  // u_Size = gl.getUniformLocation(gl.program, 'u_Size');
+  // if(!u_Size) {
+  //   console.log('Failed to get the storage location of u_Size');
+  //   return;
+  // }
+
+  u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+  if(!u_ModelMatrix) {
+    console.log('Failed to get the storage location of u_ModelMatrix');
     return;
   }
+
+  u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+  if(!u_ModelMatrix) {
+    console.log('Failed to get the storage location of u_GlobalRotateMatrix');
+    return;
+  }
+
+  let x = new Matrix4();
+  
+  gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
 }
 
 function addActionListeners() {
@@ -178,13 +196,31 @@ function renderAllShapes() {
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  var len = g_shapesList.length;
-  for(var i = 0; i < len; i++) {
-    g_shapesList[i].render();
-  }
+  // var len = g_shapesList.length;
+  // for(var i = 0; i < len; i++) {
+  //   g_shapesList[i].render();
+  // }
+  // g_shapesList = [];
+  drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
+
+  let body = new Cube();
+  body.color = [1.0, 0, 0, 1.0];
+  body.matrix.translate(-0.25, -0.5, 0.0);
+  body.matrix.scale(0.5, 1, 0.5);
+  body.render();
+
+  let left_arm = new Cube();
+  left_arm.color = [1.0, 1, 0, 1.0];
+  left_arm.matrix.setTranslate(0.7, 0, 0.0);
+  left_arm.matrix.rotate(45, 0, 0, 1)
+  left_arm.matrix.scale(0.25, .7, 0.5);
+  left_arm.render();
+  
+  // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
+
 
   var duration = performance.now() - start_time;
-  sendTextToHTML("numdot: " + len + " ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
+  sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
 }
 
 function sendTextToHTML(txt, htmlID) {
@@ -240,21 +276,43 @@ function generatePicture() {
 
 }
 
+function generateAnimal() {
+  drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
+
+  let body = new Cube();
+  body.color = [1.0, 0, 0, 1.0];
+  body.matrix.translate(-0.25, -0.5, 0.0);
+  body.matrix.scale(0.5, 1, 0.5);
+  body.render();
+
+  let left_arm = new Cube();
+  left_arm.color = [1.0, 1, 0, 1.0];
+  left_arm.matrix.translate(0.7, 0, 0.0);
+  left_arm.matrix.rotate(45, 0, 0, 1)
+  left_arm.matrix.scale(0.25, .7, 0.5);
+  left_arm.render();
+}
+
 function main() {
   // set up canvas and gl
   setUpWebGL();
   // set up 
   connectVariablesToGLSL();
 
+  addActionListeners();
+
   canvas.onmousedown = handleClicks //function(ev){ click(ev, gl, canvas, a_Position, u_FragColor) };
   canvas.onmousemove = function(ev) {if(ev.buttons == 1) {handleClicks(ev);};};
-
-  addActionListeners();
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
   // Clear <canvas>
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  // generatePicture();
+  // gl.clear(gl.COLOR_BUFFER_BIT);
+  
+  renderAllShapes();
+  // g_shapesList = [];
+  // renderAllShapes();
 }
+
+// main();
