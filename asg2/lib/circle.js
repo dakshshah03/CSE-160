@@ -10,22 +10,13 @@ class Circle {
     render() {
         var xy = this.position;
         var rgba = this.color;
-        var size = this.size;
+        // var size = this.size;
     
-        // Pass the position of a point to a_Position variable
-        // gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-        // Pass the color of a point to u_FragColor variable
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
     
-        // gl.uniform1f(u_Size, size);
-    
-        // Draw
-        // gl.drawArrays(gl.POINTS, 0, 1);
         let delta = this.size/200.0;
-        // drawTriangle([xy[0], xy[1], xy[0] - delta/2, xy[1] - delta*Math.sqrt(3)/2, xy[0] + delta/2, xy[1] - delta*Math.sqrt(3)/2]);
 
         let angle_step = 360.0/this.segments;
-
         for(var angle = 0; angle < 360; angle+=angle_step) {
             let centerPT = [xy[0], xy[1]];
             let angle1 = angle;
@@ -39,3 +30,4 @@ class Circle {
         }
     }
 }
+

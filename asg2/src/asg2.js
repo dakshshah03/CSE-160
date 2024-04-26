@@ -37,22 +37,24 @@ const CIRCLE = 2;
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 10.0;
 let g_selectedShape = POINT;
-let g_selectedSegmentCount = 10.0;
-let rgb_mode = false;
-let rgb_color = [1, 128, 255];
-let rainbow_mode = false;
-let rainbow_color = 0;
+let g_cameraAngleY = 0.0;
+// let g_selectedSegmentCount = 10.0;
+// let rgb_mode = false;
+// let rgb_color = [1, 128, 255];
+// let rainbow_mode = false;
+// let rainbow_color = 0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
   // Get the rendering context for WebGL
   gl = canvas.getContext("webgl", { preserveDrawingBuffer: true});
-
   if (!gl) {
     console.log('Failed to get the rendering context for WebGL');
     return;
   }
+
+  gl.enable(gl.DEPTH_TEST);
 }
 
 function connectVariablesToGLSL() {
@@ -105,18 +107,13 @@ function addActionListeners() {
   document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
   document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
   document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
-  document.getElementById('generate-picture').onclick = function() {generatePicture()};
-  document.getElementById('rgb').addEventListener('change', function() {if(this.checked) {rgb_mode = true;} else {rgb_mode = false;};});
-  document.getElementById('rainbow').addEventListener('change', function() {if(this.checked) {rainbow_mode = true;} else {rainbow_mode = false;};});
   
   // slider events
   document.getElementById('red-slider').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/255; });
   document.getElementById('green-slider').addEventListener('mouseup', function() {g_selectedColor[1] = this.value/255; });
   document.getElementById('blue-slider').addEventListener('mouseup', function() {g_selectedColor[2] = this.value/255; });
 
-  document.getElementById('shape-size-slider').addEventListener('mouseup', function() {g_selectedSize = this.value; });
-
-  document.getElementById('segment-count-slider').addEventListener('mouseup', function() {g_selectedSegmentCount = this.value; });
+  document.getElementById('cam-angle').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
 }
 
 
@@ -192,16 +189,13 @@ function convertMouseToEventCoords(ev) {
 
 function renderAllShapes() {
   var start_time = performance.now();
+  var globalRotMat = new Matrix4().rotate(g_cameraAngleY, 0, 1, 0);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
   // Clear <canvas>
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // var len = g_shapesList.length;
-  // for(var i = 0; i < len; i++) {
-  //   g_shapesList[i].render();
-  // }
-  // g_shapesList = [];
-  drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
+  // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
   let body = new Cube();
   body.color = [1.0, 0, 0, 1.0];
@@ -216,6 +210,12 @@ function renderAllShapes() {
   left_arm.matrix.scale(0.25, .7, 0.5);
   left_arm.render();
   
+  let box = new Cube();
+  box.color = [1.0, 0, 1, 1.0];
+  box.matrix.translate(0, 0, -0.5, 0);
+  box.matrix.rotate(-30, 1, 0, 0)
+  box.matrix.scale(0.5, 0.5, 0.5);
+  box.render();
   // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
 
@@ -230,67 +230,6 @@ function sendTextToHTML(txt, htmlID) {
     return;
   }
   htmlElm.innerHTML = txt;
-}
-
-function generatePicture() {
-  // clear the canvas
-  g_shapesList = []; 
-  renderAllShapes();
-
-  //draw the picture
-  // for(let i = 0; i < 25; i++) {
-  //   g_shapesList.push(new Triangle());
-  // }
-
-  // g_shapesList[0].position = [-.5, 0.8, -.5, 0.95, -0.6, 0.95];
-
-  // cloud
-  drawTriangleColor([-.5, 0.8, -.5, 0.95, -0.8, 0.88], [110.0, 121.0, 138.0, 1.0]);
-  drawTriangleColor([-.5, 0.8, -.5, 0.95, 0.1, 0.95], [73.0, 82.0, 97.0, 1.0]);
-  drawTriangleColor([-.5, 0.8, .4, 0.67, 0.1, 0.95], [93.0, 100.0, 110.0, 1.0]);
-  drawTriangleColor([-.5, 0.8, .4, 0.67, -0.7, 0.5], [110.0, 121.0, 138.0, 1.0]);
-  drawTriangleColor([-.5, 0.8, -.9, 0.7, -0.7, 0.5], [100.0, 110.0, 133.0, 1.0]);
-  drawTriangleColor([-.5, 0.8, -.9, 0.7, -0.8, 0.88], [73.0, 82.0, 97.0, 1.0]);
-
-  // draw water
-  drawTriangleColor([-1.0, -0.3, -1.0, -0.1, 0.5, -0.1], [32.0, 65.0, 190., 1.0]);
-  drawTriangleColor([-1.0, -0.3, -1.0, -1, 0.5, -0.1], [7.0, 57.0, 138.0, 1.0]);
-  drawTriangleColor([0.4, -1, -1.0, -1, 0.5, -0.1], [54.0, 98.0, 168.0, 1.0]);
-  drawTriangleColor([0.4, -1, 1.0, -1, 0.5, -0.1], [7.0, 57.0, 138.0, 1.0]);
-  drawTriangleColor([1, -1, 1.0, -0.1, 0.5, -0.1], [32.0, 65.0, 190., 1.0]);
-
-  // add moon
-  drawTriangleColor([0.7, 0.6, 0.6, 0.5, 0.6, 0.7], [189.0, 200.0, 219.0, 1.0]);
-  drawTriangleColor([0.5, 0.6, 0.6, 0.5, 0.6, 0.7], [154.0, 170.0, 202.0, 1.0]);
-
-  // add bridge
-  drawTriangleColor([-1, 0, -0.5, 0, -0.5, 0.13], [155, 4, 55, 1.0]);
-  drawTriangleColor([-0.1, 0, -0.5, 0, -0.5, 0.1], [219, 4, 55, 1.0]);
-  drawTriangleColor([1, 0, 0.5, 0, 0.5, 0.13], [155, 4, 55, 1.0]);
-  drawTriangleColor([0.1, 0, 0.5, 0, 0.5, 0.1], [219, 4, 55, 1.0]);
-  drawTriangleColor([-1, 0, -1, -0.1, -0.3, 0], [87, 1, 21, 1.0]);
-  drawTriangleColor([1, 0, 1, -0.1, 0.3, 0], [87, 1, 21, 1.0]);
-  drawTriangleColor([-0.3, 0, 0, -0.1, 0.3, 0], [87, 1, 21, 1.0]);
-
-  // renderAllShapes();
-
-}
-
-function generateAnimal() {
-  drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
-
-  let body = new Cube();
-  body.color = [1.0, 0, 0, 1.0];
-  body.matrix.translate(-0.25, -0.5, 0.0);
-  body.matrix.scale(0.5, 1, 0.5);
-  body.render();
-
-  let left_arm = new Cube();
-  left_arm.color = [1.0, 1, 0, 1.0];
-  left_arm.matrix.translate(0.7, 0, 0.0);
-  left_arm.matrix.rotate(45, 0, 0, 1)
-  left_arm.matrix.scale(0.25, .7, 0.5);
-  left_arm.render();
 }
 
 function main() {
