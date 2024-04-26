@@ -202,17 +202,52 @@ function renderAllShapes() {
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // // draw main body=
+  // draw main body
   body.color = [0.75, 0.65, 0.4, 1.0];
   body.matrix.scale(0.5, 0.3, 0.75);
   // body.matrix.translate(-0.5, -0.5, 0);
   body.render();
 
+  legFL_1.color = [0.65, 0.55, 0.3, 1.0];
+  legFL_1.matrix.translate(0.2, -0.2, -.3);
+  legFL_1.matrix.rotate(-20, 1, 0, 0);
+  legFL_1.matrix.scale(0.15, 0.3, 0.15);
+  legFL_1.render();
+
+  legFL_2.color = [0.65, 0.55, 0.3, 1.0];
+  legFL_2.matrix.translate(0.2, -0.48, -.3);
+  legFL_2.matrix.rotate(20, 1, 0, 0);
+  legFL_2.matrix.scale(0.1, 0.4, 0.1);
+  legFL_2.render();
+
+  legFL_3.color = [0.25, 0.23, 0.16, 1.0];
+  legFL_3.matrix.translate(0.2, -0.65, -.37);
+  legFL_3.matrix.scale(0.12, 0.12, 0.12);
+  legFL_3.render();
+
+  legFR_1.color = [0.65, 0.55, 0.3, 1.0];
+  legFR_1.matrix.translate(-0.2, -0.2, -.3);
+  legFR_1.matrix.rotate(-20, 1, 0, 0);
+  legFR_1.matrix.scale(0.15, 0.3, 0.15);
+  legFR_1.render();
+
+  legFR_2.color = [0.65, 0.55, 0.3, 1.0];
+  legFR_2.matrix.translate(-0.2, -0.48, -.3);
+  legFR_2.matrix.rotate(20, 1, 0, 0);
+  legFR_2.matrix.scale(0.1, 0.4, 0.1);
+  legFR_2.render();
+
+  legFR_3.color = [0.25, 0.23, 0.16, 1.0];
+  legFR_3.matrix.translate(-0.2, -0.65, -.37);
+  legFR_3.matrix.scale(0.12, 0.12, 0.12);
+  legFR_3.render();
+
   // head.color = 
-  // neck.color = [0.75, 0.65, 0.4, 1.0];
-  // neck.matrix.scale(0.1, 0.1, 0.2);
-  // neck.matrix.translate(0, 0.45, -0.3);
-  // neck.render();
+  neck.color = [0.75, 0.65, 0.4, 1.0];
+  neck.matrix.translate(0, 0.2, -0.4);
+  neck.matrix.rotate(-40, 1, 0, 0);
+  neck.matrix.scale(0.2, 0.4, 0.2);
+  neck.render();
 
   // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
