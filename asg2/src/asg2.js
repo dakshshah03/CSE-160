@@ -181,8 +181,10 @@ function renderAllShapes() {
   // back legs
   let legBL_1 = new Cube(); // body joint
   let legBL_2 = new Cube(); // foot joint
+  let legBL_3 = new Cube();
   let legBR_1 = new Cube();
   let legBR_2 = new Cube();
+  let legBR_3 = new Cube();
 
   // tail vars
   let tail = new Cube();
@@ -208,47 +210,93 @@ function renderAllShapes() {
   // body.matrix.translate(-0.5, -0.5, 0);
   body.render();
 
+  // front legs
   legFL_1.color = [0.65, 0.55, 0.3, 1.0];
   legFL_1.matrix.translate(0.2, -0.2, -.3);
-  legFL_1.matrix.rotate(-20, 1, 0, 0);
+  legFL_1.matrix.rotate(10, 1, 0, 0);
   legFL_1.matrix.scale(0.15, 0.3, 0.15);
   legFL_1.render();
 
   legFL_2.color = [0.65, 0.55, 0.3, 1.0];
   legFL_2.matrix.translate(0.2, -0.48, -.3);
-  legFL_2.matrix.rotate(20, 1, 0, 0);
+  legFL_2.matrix.rotate(-10, 1, 0, 0);
   legFL_2.matrix.scale(0.1, 0.4, 0.1);
   legFL_2.render();
 
   legFL_3.color = [0.25, 0.23, 0.16, 1.0];
-  legFL_3.matrix.translate(0.2, -0.65, -.37);
+  legFL_3.matrix.translate(0.2, -0.65, -.28);
   legFL_3.matrix.scale(0.12, 0.12, 0.12);
   legFL_3.render();
 
   legFR_1.color = [0.65, 0.55, 0.3, 1.0];
   legFR_1.matrix.translate(-0.2, -0.2, -.3);
-  legFR_1.matrix.rotate(-20, 1, 0, 0);
+  legFR_1.matrix.rotate(10, 1, 0, 0);
   legFR_1.matrix.scale(0.15, 0.3, 0.15);
   legFR_1.render();
 
   legFR_2.color = [0.65, 0.55, 0.3, 1.0];
   legFR_2.matrix.translate(-0.2, -0.48, -.3);
-  legFR_2.matrix.rotate(20, 1, 0, 0);
+  legFR_2.matrix.rotate(-10, 1, 0, 0);
   legFR_2.matrix.scale(0.1, 0.4, 0.1);
   legFR_2.render();
 
   legFR_3.color = [0.25, 0.23, 0.16, 1.0];
-  legFR_3.matrix.translate(-0.2, -0.65, -.37);
+  legFR_3.matrix.translate(-0.2, -0.65, -.28);
   legFR_3.matrix.scale(0.12, 0.12, 0.12);
   legFR_3.render();
 
-  // head.color = 
+  //back legs
+  legBR_1.color = [0.65, 0.55, 0.3, 1.0];
+  legBR_1.matrix.translate(-0.2, -0.2, .3);
+  legBR_1.matrix.rotate(-20, 1, 0, 0);
+  legBR_1.matrix.scale(0.15, 0.3, 0.15);
+  legBR_1.render();
+
+  legBR_2.color = [0.65, 0.55, 0.3, 1.0];
+  legBR_2.matrix.translate(-0.2, -0.48, .3);
+  legBR_2.matrix.rotate(20, 1, 0, 0);
+  legBR_2.matrix.scale(0.1, 0.4, 0.1);
+  legBR_2.render();
+
+  legBR_3.color = [0.25, 0.23, 0.16, 1.0];
+  legBR_3.matrix.translate(-0.2, -0.65, .24);
+  legBR_3.matrix.scale(0.12, 0.12, 0.12);
+  legBR_3.render();
+
+  legBL_1.color = [0.65, 0.55, 0.3, 1.0];
+  legBL_1.matrix.translate(0.2, -0.2, .3);
+  legBL_1.matrix.rotate(-20, 1, 0, 0);
+  legBL_1.matrix.scale(-0.15, 0.3, 0.15);
+  legBL_1.render();
+
+  legBL_2.color = [0.65, 0.55, 0.3, 1.0];
+  legBL_2.matrix.translate(0.2, -0.48, .3);
+  legBL_2.matrix.rotate(20, 1, 0, 0);
+  legBL_2.matrix.scale(0.1, 0.4, 0.1);
+  legBL_2.render();
+
+  legBL_3.color = [0.25, 0.23, 0.16, 1.0];
+  legBL_3.matrix.translate(0.2, -0.65, .24);
+  legBL_3.matrix.scale(0.12, 0.12, 0.12);
+  legBL_3.render();
+
+  // head region
   neck.color = [0.75, 0.65, 0.4, 1.0];
   neck.matrix.translate(0, 0.2, -0.4);
   neck.matrix.rotate(-40, 1, 0, 0);
   neck.matrix.scale(0.2, 0.4, 0.2);
   neck.render();
 
+  head.color = [0.7, 0.6, 0.35, 1.0];
+  head.matrix.translate(0, 0.4, -0.5);
+  // neck.matrix.rotate(-40, 1, 0, 0);
+  head.matrix.scale(0.3, 0.3, 0.25);
+  head.render();
+
+  snout.color = [0.6, 0.5, 0.3, 1.0];
+  snout.matrix.translate(0, 0.35, -0.7);
+  snout.matrix.scale(0.13, 0.13, 0.25);
+  snout.render();
   // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
   // let body = new Cube();
