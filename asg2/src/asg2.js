@@ -158,35 +158,7 @@ function handleClicks(ev) {
 
 
 // make https://media1.tenor.com/m/OoGJfgQGlOkAAAAd/deer-dancing.gif
-// body vars
-let body_mat = new Matrix4();
-let body = new Cube();
 
-// front legs
-let legFL_1 = new Cube(); // body joint
-let legFL_2 = new Cube(); // second joint
-let legFL_3 = new Cube(); // hoof joint
-let legFR_1 = new Cube();
-let legFR_2 = new Cube();
-let legFR_3 = new Cube();
-
-// back legs
-let legBL_1 = new Cube(); // body joint
-let legBL_2 = new Cube(); // foot joint
-let legBR_1 = new Cube();
-let legBR_2 = new Cube();
-
-// tail vars
-
-// head vars
-let head = new Cube(); 
-let snout = new Cube();
-let nose = new Cube();
-let eyeL = new Cube();
-let eyeR = new Cube();
-
-//ears
-// 
 
 function renderAllShapes() {
   var start_time = performance.now();
@@ -194,9 +166,53 @@ function renderAllShapes() {
   globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+  // body vars
+  let body_mat = new Matrix4();
+  var body = new Cube();
+
+  // front legs
+  let legFL_1 = new Cube(); // body joint
+  let legFL_2 = new Cube(); // second joint
+  let legFL_3 = new Cube(); // hoof joint
+  let legFR_1 = new Cube();
+  let legFR_2 = new Cube();
+  let legFR_3 = new Cube();
+
+  // back legs
+  let legBL_1 = new Cube(); // body joint
+  let legBL_2 = new Cube(); // foot joint
+  let legBR_1 = new Cube();
+  let legBR_2 = new Cube();
+
+  // tail vars
+  let tail = new Cube();
+
+  // head vars
+  let head = new Cube(); 
+  let neck = new Cube();
+  let snout = new Cube();
+  let nose = new Cube();
+  let eyeL = new Cube();
+  let eyeR = new Cube();
+
+  //ears
+  let earL = new Pyramid();
+  let earR = new Pyramid();
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // // draw main body=
+  body.color = [0.75, 0.65, 0.4, 1.0];
+  body.matrix.scale(0.5, 0.3, 0.75);
+  // body.matrix.translate(-0.5, -0.5, 0);
+  body.render();
+
+  // head.color = 
+  // neck.color = [0.75, 0.65, 0.4, 1.0];
+  // neck.matrix.scale(0.1, 0.1, 0.2);
+  // neck.matrix.translate(0, 0.45, -0.3);
+  // neck.render();
 
   // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
