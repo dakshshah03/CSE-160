@@ -44,8 +44,9 @@ let g_cameraAngleX = 0.0;
 let g_cameraAngleZ = 0.0;
 
 //body control angles
-let g_headAngle = 0.0;
+let g_headAngle = [0.0, 0.0, 0.0];
 let g_flAngle = 10.0;
+let g_flLowerAngle = 0.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -112,8 +113,10 @@ function addActionListeners() {
   // document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
   
   // slider events
-  document.getElementById('h-slider-x').addEventListener('mousemove', function() {g_headAngle = this.value; renderAllShapes();});
-  document.getElementById('fl-slider').addEventListener('mousemove', function() {g_flAngle = this.value; renderAllShapes();});
+  document.getElementById('h-slider-x').addEventListener('mousemove', function() {g_headAngle[0] = this.value; renderAllShapes();});
+  document.getElementById('front-leg-upper-slider').addEventListener('mousemove', function() {g_flAngle = this.value; renderAllShapes();});
+  document.getElementById('front-leg-lower-slider').addEventListener('mousemove', function() {g_flLowerAngle = this.value; renderAllShapes();});
+
   document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
   document.getElementById('cam-angle-z').addEventListener('mousemove', function() {g_cameraAngleZ = this.value; renderAllShapes();});
@@ -219,28 +222,60 @@ function renderAllShapes() {
   body.render();
 
   // front legs
-  legFL_1.color = [0.65, 0.55, 0.3, 1.0];
-  legFL_1.matrix.setTranslate(0.15, -0.05, -0.3);
-  legFL_1.matrix.rotate(g_flAngle, 1, 0, 0);
-  var fl_matrix = new Matrix4(legFL_1.matrix);
-  legFL_1.matrix.rotate(180, 1, 0, 0);
-  legFL_1.matrix.scale(0.15, 0.3, -0.15);
-  legFL_1.render();
+  // front left leg
+  {
+    legFL_1.color = [0.65, 0.55, 0.3, 1.0];
+    legFL_1.matrix.setTranslate(0.15, -0.05, -0.3);
+    legFL_1.matrix.rotate(g_flAngle, 1, 0, 0);
+    var fl_matrix = new Matrix4(legFL_1.matrix);
+    legFL_1.matrix.rotate(180, 1, 0, 0);
+    legFL_1.matrix.scale(0.15, 0.3, -0.15);
+    legFL_1.render();
 
-  legFL_2.color = [0.65, 0.55, 0.3, 1.0];
-  // legFL_2.matrix.translate(0.2, -0.48, -.3);
-  legFL_2.matrix = fl_matrix;
-  legFL_2.matrix.translate(0, -0.28, 0);
-  legFL_2.matrix.rotate(180, 1, 0, 0);
-  legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
-  legFL_2.matrix.scale(0.1, 0.4, -0.1);
-  legFL_2.render();
+    legFL_2.color = [0.65, 0.55, 0.3, 1.0];
+    legFL_2.matrix = fl_matrix;
+    legFL_2.matrix.translate(0.025, -0.28, 0);
+    legFL_2.matrix.rotate(180, 1, 0, 0);
+    legFL_2.matrix.rotate(g_flLowerAngle, 1, 0, 0);
+    legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
+    var fl2_matrix = new Matrix4(legFL_2.matrix);
+    legFL_2.matrix.scale(0.1, 0.4, -0.1);
+    legFL_2.render();
 
-  legFL_3.color = [0.25, 0.23, 0.16, 1.0];
-  legFL_3.matrix.translate(0.2, -0.65, -.28);
-  legFL_3.matrix.scale(0.12, 0.12, 0.12);
-  // legFL_3.matrix.translate(-0.5, -0.5, -0.5);
-  legFL_3.render();
+    legFL_3.color = [0.25, 0.23, 0.16, 1.0];
+    legFL_3.matrix = fl2_matrix;
+    // legFL_3.matrix.translate(0.2, -0.65, -.28);
+    legFL_3.matrix.translate(-0.01, 0.3, -0.11);
+    legFL_3.matrix.scale(0.12, 0.12, 0.12);
+    // legFL_3.matrix.translate(-0.5, -0.5, -0.5);
+    legFL_3.render();
+  }
+
+  {
+    legFR_1.color = [0.65, 0.55, 0.3, 1.0];
+    legFR_1.matrix.setTranslate(-0.3, -0.05, -0.3);
+    legFR_1.matrix.rotate(g_flAngle, 1, 0, 0);
+    var fr_matrix = new Matrix4(legFR_1.matrix);
+    legFR_1.matrix.rotate(180, 1, 0, 0);
+    legFR_1.matrix.scale(0.15, 0.3, -0.15);
+    legFR_1.render();
+
+    legFR_2.color = [0.65, 0.55, 0.3, 1.0];
+    // legFL_2.matrix.translate(0.2, -0.48, -.3);
+    legFR_2.matrix = fr_matrix;
+    legFR_2.matrix.translate(0.025, -0.28, 0);
+    legFR_2.matrix.rotate(180, 1, 0, 0);
+    legFR_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
+    var fr2_matrix = new Matrix4(legFR_2.matrix);
+    legFR_2.matrix.scale(0.1, 0.4, -0.1);
+    legFR_2.render();
+
+    legFR_3.color = [0.25, 0.23, 0.16, 1.0];
+    legFR_3.matrix = fr2_matrix;
+    legFR_3.matrix.translate(-0.01, 0.3, -0.11);
+    legFR_3.matrix.scale(0.12, 0.12, 0.12);
+    legFR_3.render();
+  }
 
   // legFR_1.color = [0.65, 0.55, 0.3, 1.0];
   // legFR_1.matrix.translate(-0.2, -0.2, -.3);
