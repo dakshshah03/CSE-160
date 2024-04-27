@@ -13,6 +13,16 @@ Notes to the grader:
   <head>
     <meta charset="utf-8" />
     <title>Daksh Shah CSE160 Assignment 2</title>
+    <style>
+      .segment {
+        display: inline-flex;
+      }
+      .slider-cont {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 100%;
+      }
+    </style>
   </head>
 
   <body onload="main()">
@@ -30,10 +40,53 @@ Notes to the grader:
     </ul> -->
 
     <br>
+    <div class="segment">
+      <div class="segment" id="display-container">
+        <canvas id="webgl" width="650" height="650">
+          Please use a browser that supports "canvas"
+        </canvas>
+      </div>
+      <!-- <br> -->
+      <!-- head, body, and camera controls supercontainer -->
+      <div class="slider-cont">
+        <div class="slider-cont" id="camera-angle-segment">
+          Camera Angle 
+          <br>
+          X:<input type="range" min="0" max="90" value="0" class="slider" id="cam-angle-x">
+          <br>
+          Y:<input type="range" min="0" max="90" value="0" class="slider" id="cam-angle-y">
+          <br>
+          Z:<input type="range" min="0" max="90" value="0" class="slider" id="cam-angle-z">
+        </div>
+        <br>
+        <br>
+        <div class="slider-cont" id="head-controls">
+            <!-- Head slider -->
+          Head Controls: <br>
+          X: <input type="range" min="-30" max="30" value="-30" class="slider" id="h-slider-x"> 
+          <br>
+          Y: <input type="range" min="-30" max="30" value="-30" class="slider" id="h-slider-x"> 
+          <br>
+          Z: <input type="range" min="-30" max="30" value="-30" class="slider" id="h-slider-x"> 
+        </div>
+        
 
-    <canvas id="webgl" width="600" height="600">
-    Please use a browser that supports "canvas"
-    </canvas>
+      </div>
+      <div class="slider-cont">
+
+        <div class="slider-cont" id="leg-sliders">
+          <!-- Front Left Leg Slider -->
+          <input type="range" min="10" max="50" value="10" class="slider" id="fl-slider"> 
+          <!-- Right Leg Slider -->
+        </div>
+      </div>
+
+      
+    </div>
+    <br>
+    <div class="segment" id="performance-display"></div>
+    <br>
+    
 
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>
@@ -45,41 +98,6 @@ Notes to the grader:
     <script src="../lib/cube.js"></script>
     <script src="../lib/pyramid.js"></script>
     <script src="asg2.js"></script>
-
-    <div id="performance-display"></div>
-    <br><br>
-    <button id="clear-canvas">Clear Canvas</button>
-    <!-- <button id="generate-picture">Generate Picture</button> -->
-    <br>
-    <br>
-    <!-- Drawing Mode:<br> -->
-    <!-- <button class="mode-buttons" id="squares">Squares</button>
-    <button class="mode-buttons" id="triangles">Triangles</button>
-    <button class="mode-buttons" id="circles">Circles</button> -->
-    <!-- Head slider -->
-    <input type="range" min="-30" max="30" value="-30" class="slider" id="h-slider"> 
-    <!-- Front Left Leg Slider --><input type="range" min="-45" max="40" value="-10" class="slider" id="fl-slider"> 
-    <!-- Right Leg Slider -->
-    <br>
-    <br>
-    Shape Color:
-    <!-- <br>
-    Wack Gradient Color Mode (Use the color sliders to change the pattern): <input type="checkbox" id="rgb">
-    <br>
-    Rainbow Mode: <input type="checkbox" id="rainbow"> -->
-    <br>
-    Red <input type="range" min="0" max="255" value="255" class="slider" id="red-slider">
-    Green <input type="range" min="0" max="255" value="255" class="slider" id="green-slider">
-    Blue <input type="range" min="0" max="255" value="255" class="slider" id="blue-slider">
-    <br>
-    
-    Camera Angle 
-    <br>
-    X:<input type="range" min="0" max="90" value="0" class="slider" id="cam-angle-x">
-    <br>
-    Y:<input type="range" min="0" max="90" value="0" class="slider" id="cam-angle-y">
-    <br>
-    Z:<input type="range" min="0" max="90" value="0" class="slider" id="cam-angle-z">
 
   </body>
 </html>

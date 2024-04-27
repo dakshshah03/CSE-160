@@ -112,7 +112,7 @@ function addActionListeners() {
   // document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
   
   // slider events
-  document.getElementById('h-slider').addEventListener('mousemove', function() {g_headAngle = this.value; renderAllShapes();});
+  document.getElementById('h-slider-x').addEventListener('mousemove', function() {g_headAngle = this.value; renderAllShapes();});
   document.getElementById('fl-slider').addEventListener('mousemove', function() {g_flAngle = this.value; renderAllShapes();});
   document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
