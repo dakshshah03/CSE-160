@@ -9,8 +9,9 @@ var VSHADER_SOURCE = `
   attribute vec4 a_Position;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
+  uniform mat4 u_GlobalTranslateMatrix;
   void main() {
-    gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
+    gl_Position = u_GlobalRotateMatrix * u_GlobalTranslateMatrix * u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -29,6 +30,7 @@ let u_FragColor;
 let u_Size;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
+let u_GlobalTranslateMatrix;
 
 
 const POINT = 0;
@@ -40,11 +42,10 @@ let g_selectedShape = POINT;
 let g_cameraAngleY = 0.0;
 let g_cameraAngleX = 0.0;
 let g_cameraAngleZ = 0.0;
-// let g_selectedSegmentCount = 10.0;
-// let rgb_mode = false;
-// let rgb_color = [1, 128, 255];
-// let rainbow_mode = false;
-// let rainbow_color = 0;
+
+//body control angles
+let g_headAngle = 0.0;
+let g_flAngle = 0.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -92,6 +93,12 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_GlobalTranslateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalTranslateMatrix');
+  if(!u_ModelMatrix) {
+    console.log('Failed to get the storage location of u_GlobalTranslateMatrix');
+    return;
+  }
+
   let x = new Matrix4();
   
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
@@ -99,15 +106,14 @@ function connectVariablesToGLSL() {
 
 function addActionListeners() {
   // button events
-  document.getElementById('clear-canvas').onclick = function() {g_shapesList = []; renderAllShapes();};
-  document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
-  document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
-  document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
+  // document.getElementById('clear-canvas').onclick = function() {g_shapesList = []; renderAllShapes();};
+  // document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
+  // document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
+  // document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
   
   // slider events
-  // document.getElementById('red-slider').addEventListener('mouseup', function() {g_selectedColor[0] = this.value/255; });
-  // document.getElementById('green-slider').addEventListener('mouseup', function() {g_selectedColor[1] = this.value/255; });
-  // document.getElementById('blue-slider').addEventListener('mouseup', function() {g_selectedColor[2] = this.value/255; });
+  document.getElementById('h-slider').addEventListener('mousemove', function() {g_headAngle = this.value; renderAllShapes();});
+  document.getElementById('fl-slider').addEventListener('mousemove', function() {g_flAngle = this.value; renderAllShapes();});
   document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
   document.getElementById('cam-angle-z').addEventListener('mousemove', function() {g_cameraAngleZ = this.value; renderAllShapes();});
@@ -165,7 +171,9 @@ function renderAllShapes() {
   var globalRotMat = new Matrix4().rotate(g_cameraAngleX, 1, 0, 0);
   globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
+  var globalTMat = new Matrix4().translate(0, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+  gl.uniformMatrix4fv(u_GlobalTranslateMatrix, false, globalTMat.elements);
   // body vars
   let body_mat = new Matrix4();
   var body = new Cube();
@@ -207,96 +215,110 @@ function renderAllShapes() {
   // draw main body
   body.color = [0.75, 0.65, 0.4, 1.0];
   body.matrix.scale(0.5, 0.3, 0.75);
-  // body.matrix.translate(-0.5, -0.5, 0);
+  // body.matrix.translate(-0.5, -0.5, -0.5);
   body.render();
 
   // front legs
   legFL_1.color = [0.65, 0.55, 0.3, 1.0];
+  // legFL_1.matrix.setTranslate(-0.5, -0.5, -0.5);
   legFL_1.matrix.translate(0.2, -0.2, -.3);
-  legFL_1.matrix.rotate(10, 1, 0, 0);
+  legFL_1.matrix.rotate(g_flAngle, 1, 0, 0);
+  var fl_matrix = new Matrix4(legFL_1.matrix);
   legFL_1.matrix.scale(0.15, 0.3, 0.15);
+  // legFL_1.matrix.translate(-0.5, -0.5, -0.5);
   legFL_1.render();
 
   legFL_2.color = [0.65, 0.55, 0.3, 1.0];
-  legFL_2.matrix.translate(0.2, -0.48, -.3);
-  legFL_2.matrix.rotate(-10, 1, 0, 0);
+  // legFL_2.matrix.translate(0.2, -0.48, -.3);
+  legFL_2.matrix = fl_matrix;
+  legFL_2.matrix.translate(0, -0.28, 0);
+  legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
+  // legFL_2.matrix.rotate(-10, 1, 0, 0);
   legFL_2.matrix.scale(0.1, 0.4, 0.1);
+  // legFL_2.matrix.translate(-0.5, -0.5, -0.5);
   legFL_2.render();
 
   legFL_3.color = [0.25, 0.23, 0.16, 1.0];
   legFL_3.matrix.translate(0.2, -0.65, -.28);
   legFL_3.matrix.scale(0.12, 0.12, 0.12);
+  // legFL_3.matrix.translate(-0.5, -0.5, -0.5);
   legFL_3.render();
 
-  legFR_1.color = [0.65, 0.55, 0.3, 1.0];
-  legFR_1.matrix.translate(-0.2, -0.2, -.3);
-  legFR_1.matrix.rotate(10, 1, 0, 0);
-  legFR_1.matrix.scale(0.15, 0.3, 0.15);
-  legFR_1.render();
+  // legFR_1.color = [0.65, 0.55, 0.3, 1.0];
+  // legFR_1.matrix.translate(-0.2, -0.2, -.3);
+  // legFR_1.matrix.rotate(10, 1, 0, 0);
+  // legFR_1.matrix.scale(0.15, 0.3, 0.15);
+  // // legFR_1.matrix.translate(-0.5, -0.5, -0.5);
+  // legFR_1.render();
 
-  legFR_2.color = [0.65, 0.55, 0.3, 1.0];
-  legFR_2.matrix.translate(-0.2, -0.48, -.3);
-  legFR_2.matrix.rotate(-10, 1, 0, 0);
-  legFR_2.matrix.scale(0.1, 0.4, 0.1);
-  legFR_2.render();
+  // legFR_2.color = [0.65, 0.55, 0.3, 1.0];
+  // legFR_2.matrix.translate(-0.2, -0.48, -.3);
+  // legFR_2.matrix.rotate(-10, 1, 0, 0);
+  // legFR_2.matrix.scale(0.1, 0.4, 0.1);
+  // // legFR_2.matrix.translate(-0.5, -0.5, -0.5);
+  // legFR_2.render();
 
-  legFR_3.color = [0.25, 0.23, 0.16, 1.0];
-  legFR_3.matrix.translate(-0.2, -0.65, -.28);
-  legFR_3.matrix.scale(0.12, 0.12, 0.12);
-  legFR_3.render();
+  // legFR_3.color = [0.25, 0.23, 0.16, 1.0];
+  // legFR_3.matrix.translate(-0.2, -0.65, -.28);
+  // legFR_3.matrix.scale(0.12, 0.12, 0.12);
+  // // legFR_3.matrix.translate(-0.5, -0.5, -0.5);
+  // legFR_3.render();
 
   //back legs
-  legBR_1.color = [0.65, 0.55, 0.3, 1.0];
-  legBR_1.matrix.translate(-0.2, -0.2, .3);
-  legBR_1.matrix.rotate(-20, 1, 0, 0);
-  legBR_1.matrix.scale(0.15, 0.3, 0.15);
-  legBR_1.render();
+  // legBR_1.color = [0.65, 0.55, 0.3, 1.0];
+  // legBR_1.matrix.translate(-0.2, -0.2, .3);
+  // legBR_1.matrix.rotate(-20, 1, 0, 0);
+  // legBR_1.matrix.scale(0.15, 0.3, 0.15);
+  // legBR_1.matrix.translate(-0.5, -0.5, -0.5);
+  // legBR_1.render();
 
-  legBR_2.color = [0.65, 0.55, 0.3, 1.0];
-  legBR_2.matrix.translate(-0.2, -0.48, .3);
-  legBR_2.matrix.rotate(20, 1, 0, 0);
-  legBR_2.matrix.scale(0.1, 0.4, 0.1);
-  legBR_2.render();
+  // legBR_2.color = [0.65, 0.55, 0.3, 1.0];
+  // legBR_2.matrix.translate(-0.2, -0.48, .3);
+  // legBR_2.matrix.rotate(20, 1, 0, 0);
+  // legBR_2.matrix.scale(0.1, 0.4, 0.1);
+  // legBR_2.matrix.translate(-0.5, -0.5, -0.5);
+  // legBR_2.render();
 
-  legBR_3.color = [0.25, 0.23, 0.16, 1.0];
-  legBR_3.matrix.translate(-0.2, -0.65, .24);
-  legBR_3.matrix.scale(0.12, 0.12, 0.12);
-  legBR_3.render();
+  // legBR_3.color = [0.25, 0.23, 0.16, 1.0];
+  // legBR_3.matrix.translate(-0.2, -0.65, .24);
+  // legBR_3.matrix.scale(0.12, 0.12, 0.12);
+  // legBR_3.matrix.translate(-0.5, -0.5, -0.5);
+  // legBR_3.render();
 
-  legBL_1.color = [0.65, 0.55, 0.3, 1.0];
-  legBL_1.matrix.translate(0.2, -0.2, .3);
-  legBL_1.matrix.rotate(-20, 1, 0, 0);
-  legBL_1.matrix.scale(-0.15, 0.3, 0.15);
-  legBL_1.render();
+  // legBL_1.color = [0.65, 0.55, 0.3, 1.0];
+  // legBL_1.matrix.translate(0.2, -0.2, .3);
+  // legBL_1.matrix.rotate(-20, 1, 0, 0);
+  // legBL_1.matrix.scale(-0.15, 0.3, 0.15);
+  // legBL_1.render();
 
-  legBL_2.color = [0.65, 0.55, 0.3, 1.0];
-  legBL_2.matrix.translate(0.2, -0.48, .3);
-  legBL_2.matrix.rotate(20, 1, 0, 0);
-  legBL_2.matrix.scale(0.1, 0.4, 0.1);
-  legBL_2.render();
+  // legBL_2.color = [0.65, 0.55, 0.3, 1.0];
+  // legBL_2.matrix.translate(0.2, -0.48, .3);
+  // legBL_2.matrix.rotate(20, 1, 0, 0);
+  // legBL_2.matrix.scale(0.1, 0.4, 0.1);
+  // legBL_2.render();
 
-  legBL_3.color = [0.25, 0.23, 0.16, 1.0];
-  legBL_3.matrix.translate(0.2, -0.65, .24);
-  legBL_3.matrix.scale(0.12, 0.12, 0.12);
-  legBL_3.render();
+  // legBL_3.color = [0.25, 0.23, 0.16, 1.0];
+  // legBL_3.matrix.translate(0.2, -0.65, .24);
+  // legBL_3.matrix.scale(0.12, 0.12, 0.12);
+  // legBL_3.render();
 
   // head region
-  neck.color = [0.75, 0.65, 0.4, 1.0];
-  neck.matrix.translate(0, 0.2, -0.4);
-  neck.matrix.rotate(-40, 1, 0, 0);
-  neck.matrix.scale(0.2, 0.4, 0.2);
-  neck.render();
-
-  head.color = [0.7, 0.6, 0.35, 1.0];
-  head.matrix.translate(0, 0.4, -0.5);
+  // neck.color = [0.75, 0.65, 0.4, 1.0];
+  // neck.matrix.translate(0, 0.2, -0.4);
   // neck.matrix.rotate(-40, 1, 0, 0);
-  head.matrix.scale(0.3, 0.3, 0.25);
-  head.render();
+  // neck.matrix.scale(0.2, 0.4, 0.2);
+  // neck.render();
 
-  snout.color = [0.6, 0.5, 0.3, 1.0];
-  snout.matrix.translate(0, 0.35, -0.7);
-  snout.matrix.scale(0.13, 0.13, 0.25);
-  snout.render();
+  // head.color = [0.7, 0.6, 0.35, 1.0];
+  // head.matrix.translate(0, 0.4, -0.5);
+  // // neck.matrix.rotate(-40, 1, 0, 0);
+  // head.matrix.scale(0.3, 0.3, 0.25);
+  // head.render();
+
+  // snout.color = [0.6, 0.5, 0.3, 1.0];
+  // snout.matrix.translate(0, 0.35, -0.7);
+  // snout.matrix.scale(0.13, 0.13, 0.25);
+  // snout.render();
   // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
   // let body = new Cube();
