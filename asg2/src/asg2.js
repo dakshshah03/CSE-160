@@ -45,7 +45,7 @@ let g_cameraAngleZ = 0.0;
 
 //body control angles
 let g_headAngle = 0.0;
-let g_flAngle = 0.0;
+let g_flAngle = 10.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -215,27 +215,25 @@ function renderAllShapes() {
   // draw main body
   body.color = [0.75, 0.65, 0.4, 1.0];
   body.matrix.scale(0.5, 0.3, 0.75);
-  // body.matrix.translate(-0.5, -0.5, -0.5);
+  body.matrix.translate(-0.5, -0.5, -0.5);
   body.render();
 
   // front legs
   legFL_1.color = [0.65, 0.55, 0.3, 1.0];
-  // legFL_1.matrix.setTranslate(-0.5, -0.5, -0.5);
-  legFL_1.matrix.translate(0.2, -0.2, -.3);
+  legFL_1.matrix.setTranslate(0.15, -0.05, -0.3);
   legFL_1.matrix.rotate(g_flAngle, 1, 0, 0);
   var fl_matrix = new Matrix4(legFL_1.matrix);
-  legFL_1.matrix.scale(0.15, 0.3, 0.15);
-  // legFL_1.matrix.translate(-0.5, -0.5, -0.5);
+  legFL_1.matrix.rotate(180, 1, 0, 0);
+  legFL_1.matrix.scale(0.15, 0.3, -0.15);
   legFL_1.render();
 
   legFL_2.color = [0.65, 0.55, 0.3, 1.0];
   // legFL_2.matrix.translate(0.2, -0.48, -.3);
   legFL_2.matrix = fl_matrix;
   legFL_2.matrix.translate(0, -0.28, 0);
+  legFL_2.matrix.rotate(180, 1, 0, 0);
   legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
-  // legFL_2.matrix.rotate(-10, 1, 0, 0);
-  legFL_2.matrix.scale(0.1, 0.4, 0.1);
-  // legFL_2.matrix.translate(-0.5, -0.5, -0.5);
+  legFL_2.matrix.scale(0.1, 0.4, -0.1);
   legFL_2.render();
 
   legFL_3.color = [0.25, 0.23, 0.16, 1.0];
