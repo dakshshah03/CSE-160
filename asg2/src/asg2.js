@@ -48,8 +48,8 @@ var g_flLowerAngle = 0.0;
 var g_frLowerAngle = 0.0;
 var g_blAngle = -20.0;
 var g_brAngle = -20.0;
-var g_blLowerAngle = 0.0;
-var g_brLowerAngle = 0.0;
+var g_blLowerAngle = 40.0;
+var g_brLowerAngle = 40.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -367,7 +367,6 @@ function renderAllShapes() {
     legFR_2.matrix.translate(0.025, -0.28, 0);
     legFR_2.matrix.rotate(180, 1, 0, 0);
     legFR_2.matrix.rotate(l_frLowerAngle, 1, 0, 0);
-    // legFR_2.matrix.rotate(-1.5* g_frAngle, 1, 0, 0);
     var fr2_matrix = new Matrix4(legFR_2.matrix);
     legFR_2.matrix.scale(0.1, 0.4, -0.1);
     legFR_2.render();
@@ -383,12 +382,26 @@ function renderAllShapes() {
   // back right leg
   {
     legBR_1.color = [0.65, 0.55, 0.3, 1.0];
-    legBR_1.matrix.translate(-0.3, -0.3, .3);
-    legBR_1.matrix.rotate(-20, 1, 0, 0);
+    legBR_1.matrix.translate(-0.3, -0.05, .2);
+    legBR_1.matrix.rotate(180, 1, 0, 0);
+    legBR_1.matrix.rotate(l_brAngle, 1, 0, 0);
     var fl_matrix = new Matrix4(legBR_1.matrix);
-    legBR_1.matrix.scale(0.15, 0.3, 0.15);
+    legBR_1.matrix.scale(0.2, 0.3, -0.2);
     legBR_1.render();
 
+    legBR_2.color = [0.65, 0.55, 0.3, 1.0];
+    legBR_2.matrix = fl_matrix;
+    legBR_2.matrix.translate(0, 0.24, -0.15);
+    legBR_2.matrix.rotate(l_brLowerAngle, 1, 0, 0);
+    var br2_matrix = new Matrix4(legBR_2.matrix);
+    legBR_2.matrix.scale(0.1, 0.45, 0.1);
+    legBR_2.render();
+
+  legBR_3.color = [0.25, 0.23, 0.16, 1.0];
+  legBR_3.matrix.translate(-0.2, -0.65, .24);
+  legBR_3.matrix.scale(0.12, 0.12, 0.12);
+  legBR_3.matrix.translate(-0.5, -0.5, -0.5);
+  legBR_3.render();
 
 
 
@@ -396,18 +409,7 @@ function renderAllShapes() {
 
 
   //back legs
-  // legBR_2.color = [0.65, 0.55, 0.3, 1.0];
-  // legBR_2.matrix.translate(-0.2, -0.48, .3);
-  // legBR_2.matrix.rotate(20, 1, 0, 0);
-  // legBR_2.matrix.scale(0.1, 0.4, 0.1);
-  // legBR_2.matrix.translate(-0.5, -0.5, -0.5);
-  // legBR_2.render();
 
-  // legBR_3.color = [0.25, 0.23, 0.16, 1.0];
-  // legBR_3.matrix.translate(-0.2, -0.65, .24);
-  // legBR_3.matrix.scale(0.12, 0.12, 0.12);
-  // legBR_3.matrix.translate(-0.5, -0.5, -0.5);
-  // legBR_3.render();
 
   // legBL_1.color = [0.65, 0.55, 0.3, 1.0];
   // legBL_1.matrix.translate(0.2, -0.2, .3);
