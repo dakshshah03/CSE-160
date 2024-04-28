@@ -1,0 +1,132 @@
+<!--
+Daksh Shah
+ID: 1953946
+dakshah@ucsc.edu
+asg1.js
+
+Notes to the grader:
+- 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Daksh Shah CSE160 Assignment 2</title>
+    <style>
+      .segment {
+        display: inline-flex;
+      }
+      .slider-cont {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body onload="main()">
+    Daksh Shah
+    <br>
+    dakshah@ucsc.edu
+    <br><br>
+    Notes to Grader:
+    <!-- <ul>
+      <li>There are two modified options. Rainbow mode, which is turned on with a checkbox below, and Wack Gradient Color Mode.<br>
+        Rainbow mode goes through the rainbow for the color, while the second mode will go through a color gradient based on the <br>
+        color slider values. However, it is called "wack" for a reason, which you may see when using this mode.
+      </li>
+      <li>To view the drawn picture, click the "Generate Picture" button. This is meant to depict a bridge with the moon shining over the ocean and a cloud in the air.</li>
+    </ul> -->
+
+    <br>
+    <div class="segment">
+      <div class="segment" id="display-container">
+        <canvas id="webgl" width="650" height="650">
+          Please use a browser that supports "canvas"
+        </canvas>
+      </div>
+      <!-- <br> -->
+      <!-- head, body, and camera controls supercontainer -->
+      <div class="slider-cont">
+        <div class="slider-cont" id="camera-angle-segment">
+          Camera Angle 
+          <br>
+          X:<input type="range" min="-90" max="90" value="0" class="slider" id="cam-angle-x">
+          <br>
+          Y:<input type="range" min="-90" max="90" value="0" class="slider" id="cam-angle-y">
+          <br>
+          Z:<input type="range" min="-90" max="90" value="0" class="slider" id="cam-angle-z">
+        </div>
+        <br>
+        <br>
+        <div class="slider-cont" id="head-controls">
+            <!-- Head slider -->
+          Head Controls: <br>
+          X: <input type="range" min="-30" max="30" value="0" class="slider" id="h-slider-x"> 
+          <br>
+          Y: <input type="range" min="-30" max="30" value="0" class="slider" id="h-slider-y"> 
+          <br>
+          Z: <input type="range" min="-30" max="30" value="0" class="slider" id="h-slider-z"> 
+        </div>
+        <br><br><br>
+        <div class="slider-cont" id="button-settings">
+          <button id="toggle-animation">Toggle Animation</button>
+        </div>
+        <br><br><br>
+        <div class="slider-cont" id="button-settings">
+          <button id="toggle-shift">Toggle ShiftClick mode</button>
+        </div>
+
+      </div>
+      <div class="slider-cont">
+
+        <div class="slider-cont" id="leg-sliders">
+          <!-- Front Left Leg Slider -->
+          Front Left Leg Controls: <br>
+          Upper Leg <input type="range" min="0" max="50" value="10" class="slider" id="front-left-leg-upper-slider">
+          <br>
+          Knee: <input type="range" min="-30" max="30" value="0" class="slider" id="front-left-leg-lower-slider"> 
+          <!-- Front Right Leg Slider -->
+          <br><br>
+          Front Right Leg Controls: <br>
+          Upper Leg <input type="range" min="0" max="50" value="10" class="slider" id="front-right-leg-upper-slider">
+          <br>
+          Knee: <input type="range" min="-30" max="30" value="0" class="slider" id="front-right-leg-lower-slider"> 
+
+          <br><br>
+          <!-- Back Left Leg Slider -->
+          Back Left Leg Controls: <br>
+          Upper Leg <input type="range" min="-50" max="20" value="-20" class="slider" id="back-left-leg-upper-slider">
+          <br>
+          Knee: <input type="range" min="0" max="80" value="40" class="slider" id="back-left-leg-lower-slider">
+          <br><br>
+          <!-- Back Right Leg Slider -->
+          Back Right Leg Controls: <br>
+          Upper Leg <input type="range" min="-50" max="20" value="-20" class="slider" id="back-right-leg-upper-slider">
+          <br>
+          Knee: <input type="range" min="0" max="80" value="40" class="slider" id="back-right-leg-lower-slider">
+
+        </div>
+      </div>
+
+      
+    </div>
+    <br>
+    <div class="segment" id="performance-display"></div>
+    <br>
+    
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="../lib/point.js"></script>
+    <script src="../lib/triangle.js"></script>
+    <script src="../lib/circle.js"></script>
+    <script src="../lib/cube.js"></script>
+    <script src="../lib/pyramid.js"></script>
+    <script src="asg2.js"></script>
+
+  </body>
+</html>
