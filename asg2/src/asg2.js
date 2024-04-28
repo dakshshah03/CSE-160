@@ -46,6 +46,10 @@ var g_flAngle = 10.0;
 var g_frAngle = 10.0;
 var g_flLowerAngle = 0.0;
 var g_frLowerAngle = 0.0;
+var g_blAngle = -20.0;
+var g_brAngle = -20.0;
+var g_blLowerAngle = 0.0;
+var g_brLowerAngle = 0.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -120,6 +124,12 @@ function addActionListeners() {
   document.getElementById('front-right-leg-upper-slider').addEventListener('mousemove', function() {g_frAngle = this.value; renderAllShapes();});
   document.getElementById('front-right-leg-lower-slider').addEventListener('mousemove', function() {g_frLowerAngle = this.value; renderAllShapes();});
 
+  document.getElementById('back-left-leg-upper-slider').addEventListener('mousemove', function() {g_blAngle = this.value; renderAllShapes();});
+  document.getElementById('back-left-leg-lower-slider').addEventListener('mousemove', function() {g_blLowerAngle = this.value; renderAllShapes();});
+
+  document.getElementById('back-right-leg-upper-slider').addEventListener('mousemove', function() {g_brAngle = this.value; renderAllShapes();});
+  document.getElementById('back-right-leg-lower-slider').addEventListener('mousemove', function() {g_brLowerAngle = this.value; renderAllShapes();});
+
   document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
   document.getElementById('cam-angle-z').addEventListener('mousemove', function() {g_cameraAngleZ = this.value; renderAllShapes();});
@@ -176,8 +186,8 @@ function renderAllShapes() {
   var start_time = performance.now();
   var globalRotMat = new Matrix4().rotate(-g_cameraAngleX*1, 1, 0, 0);
   // globalRotMat.rotate(45, 0, 1, 0);
-  globalRotMat.rotate(g_cameraAngleY*1, 0, 1, 0);
-  globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
+  globalRotMat.rotate(180 + g_cameraAngleY*1, 0, 1, 0);
+  globalRotMat.rotate(g_cameraAngleZ*1, 0, 0, 1);
   var globalTMat = new Matrix4().translate(0, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
   gl.uniformMatrix4fv(u_GlobalTranslateMatrix, false, globalTMat.elements);
@@ -216,18 +226,24 @@ function renderAllShapes() {
   let earR = new Pyramid();
 
   var l_flAngle = g_flAngle;
-  var l_flLowerAngle = g_flLowerAngle;
   var l_frAngle = g_frAngle;
+  var l_flLowerAngle = g_flLowerAngle;
   var l_frLowerAngle = g_frLowerAngle;
+  var l_blAngle = g_blAngle;
+  var l_brAngle = g_brAngle;
+  var l_blLowerAngle = g_blLowerAngle;
+  var l_brLowerAngle = g_brLowerAngle;
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   if(g_animationActive) {
-    // fl leg
+    // front left leg animation
     l_flAngle = g_flAngle*1 + 25 * Math.sin(g_seconds*5);
     l_flLowerAngle = g_flLowerAngle*1 -10 + 15 * Math.sin(g_seconds*5);
     l_frAngle = g_frAngle*1 + 25 * Math.sin(g_seconds*5 + Math.PI);
     l_frLowerAngle = g_frLowerAngle*1 -10 + 15 * Math.sin(g_seconds*5 + Math.PI);
+
+    l_blAngle = g_blAngle*1 + 25 * Math.sin(g_seconds*5);
   }
     
   // draw main body
@@ -362,19 +378,24 @@ function renderAllShapes() {
     legFR_3.matrix.scale(0.12, 0.12, 0.12);
     legFR_3.render();
   }
+
+  // back legs
+  // back right leg
   {
+    legBR_1.color = [0.65, 0.55, 0.3, 1.0];
+    legBR_1.matrix.translate(-0.3, -0.3, .3);
+    legBR_1.matrix.rotate(-20, 1, 0, 0);
+    var fl_matrix = new Matrix4(legBR_1.matrix);
+    legBR_1.matrix.scale(0.15, 0.3, 0.15);
+    legBR_1.render();
+
+
+
 
   }
 
 
   //back legs
-  // legBR_1.color = [0.65, 0.55, 0.3, 1.0];
-  // legBR_1.matrix.translate(-0.2, -0.2, .3);
-  // legBR_1.matrix.rotate(-20, 1, 0, 0);
-  // legBR_1.matrix.scale(0.15, 0.3, 0.15);
-  // legBR_1.matrix.translate(-0.5, -0.5, -0.5);
-  // legBR_1.render();
-
   // legBR_2.color = [0.65, 0.55, 0.3, 1.0];
   // legBR_2.matrix.translate(-0.2, -0.48, .3);
   // legBR_2.matrix.rotate(20, 1, 0, 0);
