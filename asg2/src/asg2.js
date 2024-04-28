@@ -34,11 +34,13 @@ let u_GlobalTranslateMatrix;
 
 let g_animationActive = true;
 let g_animationShift = false;
-// let g_animationAngle = 0.0;
 
-let g_cameraAngleY = 0.0;
-let g_cameraAngleX = 0.0;
+let g_cameraAngleX = 30.0;
+let g_cameraAngleY = 30.0;
 let g_cameraAngleZ = 0.0;
+
+let g_deltaX = 0;
+let g_deltaY = 0;
 
 
 //body control angles
@@ -51,6 +53,7 @@ var g_blAngle = -20.0;
 var g_brAngle = -20.0;
 var g_blLowerAngle = 40.0;
 var g_brLowerAngle = 40.0;
+var g_tailAngle = 0.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -113,10 +116,6 @@ function addActionListeners() {
   // button events
   document.getElementById('toggle-animation').onclick = function() {g_animationActive = !g_animationActive;};
   document.getElementById('toggle-shift').onclick = function() {g_animationShift = !g_animationShift;};
-  // document.getElementById('clear-canvas').onclick = function() {g_shapesList = []; renderAllShapes();};
-  // document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
-  // document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
-  // document.getElementById('circles').onclick = function() {g_selectedShape = CIRCLE;};
   
   // slider events
   document.getElementById('h-slider-x').addEventListener('mousemove', function() {g_headAngle[0] = this.value; renderAllShapes();});
@@ -138,50 +137,40 @@ function addActionListeners() {
   document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
   document.getElementById('cam-angle-z').addEventListener('mousemove', function() {g_cameraAngleZ = this.value; renderAllShapes();});
+
+
+  // mouse events
+  document.getElementById('display-container').addEventListener('click', function(ev) {
+    if(ev.shiftKey) {
+      g_animationShift = !g_animationShift;
+    }
+  });
+
+  canvas.onmousemove = function(ev) {
+    let [x, y] = convertMouseToEventCoords(ev);
+    if(ev.buttons == 1) {
+      g_cameraAngleY -= (x - g_deltaX) * 120;
+      g_cameraAngleX -= (y - g_deltaY) * 120;
+      g_deltaX = x;
+      g_deltaY = y;
+    } else {
+      g_deltaX = x;
+      g_deltaY = y;
+    }
+  }
 }
 
 
-var g_shapesList = [];
+function convertMouseToEventCoords(ev) {
+  var x = ev.clientX; // x coordinate of a mouse pointer
+  var y = ev.clientY; // y coordinate of a mouse pointer
+  var rect = ev.target.getBoundingClientRect();
 
-function handleClicks(ev) {
-  let [x, y] = convertMouseToEventCoords(ev);
+  x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
+  y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
 
-  // create and store a point
-  let point;
-  if(g_selectedShape == POINT) {
-    point = new Point();
-  } else if (g_selectedShape == TRIANGLE) {
-    point = new Triangle();
-  } else if (g_selectedShape == CIRCLE) {
-    point = new Circle();
-    point.segments = g_selectedSegmentCount;
-  }
-
-  point.position = [x, y];
-  if(rgb_mode == true) {
-    rgb_color = [((rgb_color[0] + 1.2*g_selectedColor[0])%256), ((rgb_color[1] + 1.2*g_selectedColor[1])%256), ((rgb_color[2] + 1.2*g_selectedColor[2])%256), 1.0];
-    point.color = [rgb_color[0]/255, rgb_color[1]/255, rgb_color[2]/255, 1.0];
-  } else if(rainbow_mode == true) {
-    point.color = getRainbowColor();
-  } else {
-    point.color = g_selectedColor.slice();
-  }
-  point.size = g_selectedSize;
-  g_shapesList.push(point);
-
-  renderAllShapes();
+  return([x, y]);
 }
-
-// function convertMouseToEventCoords(ev) {
-//   var x = ev.clientX; // x coordinate of a mouse pointer
-//   var y = ev.clientY; // y coordinate of a mouse pointer
-//   var rect = ev.target.getBoundingClientRect();
-
-//   x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
-//   y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
-
-//   return([x, y]);
-// }
 
 
 // make https://media1.tenor.com/m/OoGJfgQGlOkAAAAd/deer-dancing.gif
@@ -239,6 +228,7 @@ function renderAllShapes() {
   var l_blLowerAngle = g_blLowerAngle;
   var l_brLowerAngle = g_brLowerAngle;
   var l_neckAngle = [g_headAngle[0], g_headAngle[1], g_headAngle[2]];
+  var l_tailAngle = g_tailAngle;
   var speedMultiplier = 5;
   var distLowerMultiplier = 15;
   var distUpperMultiplier = 20;
@@ -269,6 +259,8 @@ function renderAllShapes() {
     // console.log(g_headAngle[2]);
     l_neckAngle[2] = g_headAngle[2]*1 + neckMultiplier * Math.sin(g_seconds*5);
     l_neckAngle[0] = g_headAngle[0]*1 + neckMultiplier * Math.cos(g_seconds*5);
+
+    l_tailAngle = g_tailAngle*1 + 10 * Math.sin(g_seconds*5);
   }
     
   // draw main body
@@ -277,6 +269,12 @@ function renderAllShapes() {
     body.matrix.scale(0.5, 0.3, 0.75);
     body.matrix.translate(-0.5, -0.5, -0.5);
     body.render();
+    
+    tail.color = [0.65, 0.55, 0.3, 1.0];
+    tail.matrix.translate(-0.05 , 0, 0.2);
+    tail.matrix.rotate(l_tailAngle, 0, 1, 0);
+    tail.matrix.scale(0.1, 0.1, 0.3);
+    tail.render();
   }
   // front legs
   // front left leg
@@ -285,6 +283,7 @@ function renderAllShapes() {
     neck.matrix.translate(0, -0.05, -0.35);
     neck.matrix.rotate(-40, 1, 0, 0);
     neck.matrix.rotate(l_neckAngle[0], 1, 0, 0);
+    neck.matrix.rotate(l_neckAngle[1], 0, 1, 0);
     neck.matrix.rotate(l_neckAngle[2], 0, 0, 1);
     var n_mat = new Matrix4(neck.matrix);
     neck.matrix.scale(0.2, 0.4, 0.2);
