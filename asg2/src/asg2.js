@@ -32,21 +32,20 @@ let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 let u_GlobalTranslateMatrix;
 
+let g_animationActive = true;
+let g_animationAngle = 0.0;
 
-const POINT = 0;
-const TRIANGLE = 1;
-const CIRCLE = 2;
-let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
-let g_selectedSize = 10.0;
-let g_selectedShape = POINT;
 let g_cameraAngleY = 0.0;
 let g_cameraAngleX = 0.0;
 let g_cameraAngleZ = 0.0;
 
+
 //body control angles
 let g_headAngle = [0.0, 0.0, 0.0];
 let g_flAngle = 10.0;
+let g_frAngle = 10.0;
 let g_flLowerAngle = 0.0;
+let g_frLowerAngle = 0.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -114,8 +113,12 @@ function addActionListeners() {
   
   // slider events
   document.getElementById('h-slider-x').addEventListener('mousemove', function() {g_headAngle[0] = this.value; renderAllShapes();});
-  document.getElementById('front-leg-upper-slider').addEventListener('mousemove', function() {g_flAngle = this.value; renderAllShapes();});
-  document.getElementById('front-leg-lower-slider').addEventListener('mousemove', function() {g_flLowerAngle = this.value; renderAllShapes();});
+
+  document.getElementById('front-left-leg-upper-slider').addEventListener('mousemove', function() {g_flAngle = this.value; renderAllShapes();});
+  document.getElementById('front-left-leg-lower-slider').addEventListener('mousemove', function() {g_flLowerAngle = this.value; renderAllShapes();});
+
+  document.getElementById('front-right-leg-upper-slider').addEventListener('mousemove', function() {g_frAngle = this.value; renderAllShapes();});
+  document.getElementById('front-right-leg-lower-slider').addEventListener('mousemove', function() {g_frLowerAngle = this.value; renderAllShapes();});
 
   document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
@@ -172,13 +175,13 @@ function handleClicks(ev) {
 function renderAllShapes() {
   var start_time = performance.now();
   var globalRotMat = new Matrix4().rotate(g_cameraAngleX, 1, 0, 0);
+  globalRotMat.rotate(45, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   var globalTMat = new Matrix4().translate(0, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
   gl.uniformMatrix4fv(u_GlobalTranslateMatrix, false, globalTMat.elements);
   // body vars
-  let body_mat = new Matrix4();
   var body = new Cube();
 
   // front legs
@@ -214,7 +217,14 @@ function renderAllShapes() {
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+  if(g_animationActive) {
+    // fl leg
+    g_flAngle = 20 + 25 * Math.sin(g_seconds*5);
+    g_flLowerAngle = -10 + 15 * Math.sin(g_seconds*5);
+    g_frAngle = 20 + 25 * Math.sin(g_seconds*5 + Math.PI);
+    g_frLowerAngle = -10 + 15 * Math.sin(g_seconds*5 + Math.PI);
+  }
+    
   // draw main body
   body.color = [0.75, 0.65, 0.4, 1.0];
   body.matrix.scale(0.5, 0.3, 0.75);
@@ -223,6 +233,27 @@ function renderAllShapes() {
 
   // front legs
   // front left leg
+  {
+    neck.color = [0.75, 0.65, 0.4, 1.0];
+    neck.matrix.translate(-0.1, -0.05, -0.35);
+    neck.matrix.rotate(-40, 1, 0, 0);
+    var n_mat = new Matrix4(neck.matrix);
+    neck.matrix.scale(0.2, 0.4, 0.2);
+    neck.render();
+  
+    head.color = [0.7, 0.6, 0.35, 1.0];
+    // head.matrix.translate(0, 0.4, -0.5);
+    head.matrix = n_mat;
+    head.matrix.translate(-0.05, 0.4, 0);
+    head.matrix.rotate(40, 1, 0, 0);
+    head.matrix.scale(0.3, 0.3, 0.25);
+    head.render();
+  
+    snout.color = [0.6, 0.5, 0.3, 1.0];
+    snout.matrix.translate(0, 0.35, -0.7);
+    snout.matrix.scale(0.13, 0.13, 0.25);
+    snout.render();
+  }
   {
     legFL_1.color = [0.65, 0.55, 0.3, 1.0];
     legFL_1.matrix.setTranslate(0.15, -0.05, -0.3);
@@ -237,35 +268,34 @@ function renderAllShapes() {
     legFL_2.matrix.translate(0.025, -0.28, 0);
     legFL_2.matrix.rotate(180, 1, 0, 0);
     legFL_2.matrix.rotate(g_flLowerAngle, 1, 0, 0);
-    legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
+    // legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
     var fl2_matrix = new Matrix4(legFL_2.matrix);
     legFL_2.matrix.scale(0.1, 0.4, -0.1);
     legFL_2.render();
 
     legFL_3.color = [0.25, 0.23, 0.16, 1.0];
     legFL_3.matrix = fl2_matrix;
-    // legFL_3.matrix.translate(0.2, -0.65, -.28);
     legFL_3.matrix.translate(-0.01, 0.3, -0.11);
     legFL_3.matrix.scale(0.12, 0.12, 0.12);
-    // legFL_3.matrix.translate(-0.5, -0.5, -0.5);
     legFL_3.render();
   }
 
+  // front right leg
   {
     legFR_1.color = [0.65, 0.55, 0.3, 1.0];
     legFR_1.matrix.setTranslate(-0.3, -0.05, -0.3);
-    legFR_1.matrix.rotate(g_flAngle, 1, 0, 0);
+    legFR_1.matrix.rotate(g_frAngle, 1, 0, 0);
     var fr_matrix = new Matrix4(legFR_1.matrix);
     legFR_1.matrix.rotate(180, 1, 0, 0);
     legFR_1.matrix.scale(0.15, 0.3, -0.15);
     legFR_1.render();
 
     legFR_2.color = [0.65, 0.55, 0.3, 1.0];
-    // legFL_2.matrix.translate(0.2, -0.48, -.3);
     legFR_2.matrix = fr_matrix;
     legFR_2.matrix.translate(0.025, -0.28, 0);
     legFR_2.matrix.rotate(180, 1, 0, 0);
-    legFR_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
+    legFR_2.matrix.rotate(g_frLowerAngle, 1, 0, 0);
+    // legFR_2.matrix.rotate(-1.5* g_frAngle, 1, 0, 0);
     var fr2_matrix = new Matrix4(legFR_2.matrix);
     legFR_2.matrix.scale(0.1, 0.4, -0.1);
     legFR_2.render();
@@ -276,26 +306,10 @@ function renderAllShapes() {
     legFR_3.matrix.scale(0.12, 0.12, 0.12);
     legFR_3.render();
   }
+  {
 
-  // legFR_1.color = [0.65, 0.55, 0.3, 1.0];
-  // legFR_1.matrix.translate(-0.2, -0.2, -.3);
-  // legFR_1.matrix.rotate(10, 1, 0, 0);
-  // legFR_1.matrix.scale(0.15, 0.3, 0.15);
-  // // legFR_1.matrix.translate(-0.5, -0.5, -0.5);
-  // legFR_1.render();
+  }
 
-  // legFR_2.color = [0.65, 0.55, 0.3, 1.0];
-  // legFR_2.matrix.translate(-0.2, -0.48, -.3);
-  // legFR_2.matrix.rotate(-10, 1, 0, 0);
-  // legFR_2.matrix.scale(0.1, 0.4, 0.1);
-  // // legFR_2.matrix.translate(-0.5, -0.5, -0.5);
-  // legFR_2.render();
-
-  // legFR_3.color = [0.25, 0.23, 0.16, 1.0];
-  // legFR_3.matrix.translate(-0.2, -0.65, -.28);
-  // legFR_3.matrix.scale(0.12, 0.12, 0.12);
-  // // legFR_3.matrix.translate(-0.5, -0.5, -0.5);
-  // legFR_3.render();
 
   //back legs
   // legBR_1.color = [0.65, 0.55, 0.3, 1.0];
@@ -334,25 +348,11 @@ function renderAllShapes() {
   // legBL_3.matrix.translate(0.2, -0.65, .24);
   // legBL_3.matrix.scale(0.12, 0.12, 0.12);
   // legBL_3.render();
-
+ 
   // head region
-  // neck.color = [0.75, 0.65, 0.4, 1.0];
-  // neck.matrix.translate(0, 0.2, -0.4);
-  // neck.matrix.rotate(-40, 1, 0, 0);
-  // neck.matrix.scale(0.2, 0.4, 0.2);
-  // neck.render();
+  
 
-  // head.color = [0.7, 0.6, 0.35, 1.0];
-  // head.matrix.translate(0, 0.4, -0.5);
-  // // neck.matrix.rotate(-40, 1, 0, 0);
-  // head.matrix.scale(0.3, 0.3, 0.25);
-  // head.render();
-
-  // snout.color = [0.6, 0.5, 0.3, 1.0];
-  // snout.matrix.translate(0, 0.35, -0.7);
-  // snout.matrix.scale(0.13, 0.13, 0.25);
-  // snout.render();
-  // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
+    // drawTriangle3D([-1.0, 0.0, 0.0,   -0.5, -1.0, 0.0,    0.0, 0.0, 0.0]);
 
   // let body = new Cube();
   // body.color = [1.0, 0, 0, 1.0];
@@ -380,6 +380,7 @@ function renderAllShapes() {
 
 
 
+
   var duration = performance.now() - start_time;
   sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
 }
@@ -391,6 +392,19 @@ function sendTextToHTML(txt, htmlID) {
     return;
   }
   htmlElm.innerHTML = txt;
+}
+
+var g_startTime = performance.now()/1000.0;
+var g_seconds = performance.now()/1000.0 - g_startTime;
+
+function tick() {
+  // console.log(g_seconds);
+  g_seconds = performance.now()/1000.0 - g_startTime;
+  
+
+  renderAllShapes();
+
+  requestAnimationFrame(tick);
 }
 
 function main() {
@@ -413,6 +427,7 @@ function main() {
   renderAllShapes();
   // g_shapesList = [];
   // renderAllShapes();
+  requestAnimationFrame(tick);
 }
 
 // main();
