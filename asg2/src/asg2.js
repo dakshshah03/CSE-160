@@ -112,6 +112,7 @@ function connectVariablesToGLSL() {
 function addActionListeners() {
   // button events
   document.getElementById('toggle-animation').onclick = function() {g_animationActive = !g_animationActive;};
+  document.getElementById('toggle-shift').onclick = function() {g_animationShift = !g_animationShift;};
   // document.getElementById('clear-canvas').onclick = function() {g_shapesList = []; renderAllShapes();};
   // document.getElementById('squares').onclick = function() {g_selectedShape = POINT;};
   // document.getElementById('triangles').onclick = function() {g_selectedShape = TRIANGLE;};
@@ -245,6 +246,14 @@ function renderAllShapes() {
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  if(g_animationShift) {
+    // var speedMultiplier = 5 + 3*Math.sin(g_seconds*3);
+    var distLowerMultiplier = 20 + 10 * Math.cos(g_seconds*5 + 5);
+    var distUpperMultiplier = 30 + 20 * Math.sin(g_seconds*5 + 14) * Math.cos(g_seconds*5 + 5);
+    var neckMultiplier = 45;
+  }
+
   if(g_animationActive) {
     // front left leg animation
     l_flAngle = g_flAngle*1 + distUpperMultiplier * Math.sin(g_seconds*speedMultiplier);
@@ -259,6 +268,7 @@ function renderAllShapes() {
 
     // console.log(g_headAngle[2]);
     l_neckAngle[2] = g_headAngle[2]*1 + neckMultiplier * Math.sin(g_seconds*5);
+    l_neckAngle[0] = g_headAngle[0]*1 + neckMultiplier * Math.cos(g_seconds*5);
   }
     
   // draw main body
@@ -274,6 +284,7 @@ function renderAllShapes() {
     neck.color = [0.75, 0.65, 0.4, 1.0];
     neck.matrix.translate(0, -0.05, -0.35);
     neck.matrix.rotate(-40, 1, 0, 0);
+    neck.matrix.rotate(l_neckAngle[0], 1, 0, 0);
     neck.matrix.rotate(l_neckAngle[2], 0, 0, 1);
     var n_mat = new Matrix4(neck.matrix);
     neck.matrix.scale(0.2, 0.4, 0.2);
