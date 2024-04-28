@@ -174,9 +174,9 @@ function handleClicks(ev) {
 
 function renderAllShapes() {
   var start_time = performance.now();
-  var globalRotMat = new Matrix4().rotate(g_cameraAngleX, 1, 0, 0);
-  globalRotMat.rotate(45, 0, 1, 0);
-  globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
+  var globalRotMat = new Matrix4().rotate(-g_cameraAngleX*1, 1, 0, 0);
+  // globalRotMat.rotate(45, 0, 1, 0);
+  globalRotMat.rotate(g_cameraAngleY*1, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   var globalTMat = new Matrix4().translate(0, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -245,19 +245,70 @@ function renderAllShapes() {
     var n_mat = new Matrix4(neck.matrix);
     neck.matrix.scale(0.2, 0.4, 0.2);
     neck.render();
-  
+
     head.color = [0.7, 0.6, 0.35, 1.0];
     // head.matrix.translate(0, 0.4, -0.5);
     head.matrix = n_mat;
-    head.matrix.translate(-0.05, 0.4, 0);
+    head.matrix.translate(-0.025, 0.4, -0.1);
     head.matrix.rotate(40, 1, 0, 0);
-    head.matrix.scale(0.3, 0.3, 0.25);
+    var head_mat = new Matrix4(head.matrix);
+    head.matrix.scale(0.25, 0.25, 0.3);
     head.render();
+
+    earL.color = [0.5, 0.43, 0.3, 1.0];
+    earL.matrix = new Matrix4(head_mat);
+    earL.matrix.translate(0.2, 0.25, 0.14);
+    earL.matrix.rotate(135, 0, 1, 0);
+    earL.matrix.scale(0.1, 0.1, 0.1);
+    earL.render();
+
+    earR.color = [0.5, 0.43, 0.3, 1.0];
+    earR.matrix = new Matrix4(head_mat);
+    earR.matrix.translate(0.05, 0.25, 0.14);
+    earR.matrix.rotate(45, 0, 1, 0);
+    earR.matrix.scale(0.1, 0.1, -0.1);
+    earR.render();
+
+    
+    eyeL.color = [1.0, 1.0, 1.0, 1.0];
+    eyeL.matrix = new Matrix4(head_mat);
+    eyeL.matrix.translate(0.23, 0.15, 0.02);
+    eyeL.matrix.scale(0.05, 0.06, 0.06);
+    eyeL.render();
+
+    eyeL.color = [0.0, 0.0, 0.0, 1.0];
+    eyeL.matrix = new Matrix4(head_mat);
+    eyeL.matrix.translate(0.24, 0.16, 0.035);
+    eyeL.matrix.scale(0.05, 0.04, 0.03);
+    eyeL.render();
+    
   
+    eyeR.color = [1.0, 1.0, 1.0, 1.0];
+    eyeR.matrix = new Matrix4(head_mat);
+    eyeR.matrix.translate(-0.03, 0.15, 0.02);
+    eyeR.matrix.scale(0.05, 0.06, 0.06);
+    eyeR.render();
+
+    eyeR.color = [0.0, 0.0, 0.0, 1.0];
+    eyeR.matrix = new Matrix4(head_mat);
+    eyeR.matrix.translate(-0.04, 0.16, 0.035);
+    eyeR.matrix.scale(0.05, 0.04, 0.03);
+    eyeR.render();
+    
+
     snout.color = [0.6, 0.5, 0.3, 1.0];
-    snout.matrix.translate(0, 0.35, -0.7);
+    snout.matrix = head_mat;
+    snout.matrix.translate(0.06, 0, -0.2);
+    var snout_mat = new Matrix4(snout.matrix);
     snout.matrix.scale(0.13, 0.13, 0.25);
     snout.render();
+
+    nose.color = [0.35, 0.28, 0.22, 1.0];
+    nose.matrix = snout_mat;
+    nose.matrix.translate(0.015, 0.08, -0.03);
+    nose.matrix.scale(0.1, 0.05, 0.1);
+    nose.render();
+  
   }
   {
     legFL_1.color = [0.65, 0.55, 0.3, 1.0];
