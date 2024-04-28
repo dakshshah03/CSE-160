@@ -41,11 +41,11 @@ let g_cameraAngleZ = 0.0;
 
 
 //body control angles
-let g_headAngle = [0.0, 0.0, 0.0];
-let g_flAngle = 10.0;
-let g_frAngle = 10.0;
-let g_flLowerAngle = 0.0;
-let g_frLowerAngle = 0.0;
+var g_headAngle = [0.0, 0.0, 0.0];
+var g_flAngle = 10.0;
+var g_frAngle = 10.0;
+var g_flLowerAngle = 0.0;
+var g_frLowerAngle = 0.0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -215,14 +215,19 @@ function renderAllShapes() {
   let earL = new Pyramid();
   let earR = new Pyramid();
 
+  var l_flAngle = g_flAngle;
+  var l_flLowerAngle = g_flLowerAngle;
+  var l_frAngle = g_frAngle;
+  var l_frLowerAngle = g_frLowerAngle;
+
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   if(g_animationActive) {
     // fl leg
-    g_flAngle = 20 + 25 * Math.sin(g_seconds*5);
-    g_flLowerAngle = -10 + 15 * Math.sin(g_seconds*5);
-    g_frAngle = 20 + 25 * Math.sin(g_seconds*5 + Math.PI);
-    g_frLowerAngle = -10 + 15 * Math.sin(g_seconds*5 + Math.PI);
+    l_flAngle = g_flAngle*1 + 25 * Math.sin(g_seconds*5);
+    l_flLowerAngle = g_flLowerAngle*1 -10 + 15 * Math.sin(g_seconds*5);
+    l_frAngle = g_frAngle*1 + 25 * Math.sin(g_seconds*5 + Math.PI);
+    l_frLowerAngle = g_frLowerAngle*1 -10 + 15 * Math.sin(g_seconds*5 + Math.PI);
   }
     
   // draw main body
@@ -257,7 +262,7 @@ function renderAllShapes() {
   {
     legFL_1.color = [0.65, 0.55, 0.3, 1.0];
     legFL_1.matrix.setTranslate(0.15, -0.05, -0.3);
-    legFL_1.matrix.rotate(g_flAngle, 1, 0, 0);
+    legFL_1.matrix.rotate(l_flAngle, 1, 0, 0);
     var fl_matrix = new Matrix4(legFL_1.matrix);
     legFL_1.matrix.rotate(180, 1, 0, 0);
     legFL_1.matrix.scale(0.15, 0.3, -0.15);
@@ -267,7 +272,7 @@ function renderAllShapes() {
     legFL_2.matrix = fl_matrix;
     legFL_2.matrix.translate(0.025, -0.28, 0);
     legFL_2.matrix.rotate(180, 1, 0, 0);
-    legFL_2.matrix.rotate(g_flLowerAngle, 1, 0, 0);
+    legFL_2.matrix.rotate(l_flLowerAngle, 1, 0, 0);
     // legFL_2.matrix.rotate(-1.5* g_flAngle, 1, 0, 0);
     var fl2_matrix = new Matrix4(legFL_2.matrix);
     legFL_2.matrix.scale(0.1, 0.4, -0.1);
@@ -284,7 +289,7 @@ function renderAllShapes() {
   {
     legFR_1.color = [0.65, 0.55, 0.3, 1.0];
     legFR_1.matrix.setTranslate(-0.3, -0.05, -0.3);
-    legFR_1.matrix.rotate(g_frAngle, 1, 0, 0);
+    legFR_1.matrix.rotate(l_frAngle, 1, 0, 0);
     var fr_matrix = new Matrix4(legFR_1.matrix);
     legFR_1.matrix.rotate(180, 1, 0, 0);
     legFR_1.matrix.scale(0.15, 0.3, -0.15);
@@ -294,7 +299,7 @@ function renderAllShapes() {
     legFR_2.matrix = fr_matrix;
     legFR_2.matrix.translate(0.025, -0.28, 0);
     legFR_2.matrix.rotate(180, 1, 0, 0);
-    legFR_2.matrix.rotate(g_frLowerAngle, 1, 0, 0);
+    legFR_2.matrix.rotate(l_frLowerAngle, 1, 0, 0);
     // legFR_2.matrix.rotate(-1.5* g_frAngle, 1, 0, 0);
     var fr2_matrix = new Matrix4(legFR_2.matrix);
     legFR_2.matrix.scale(0.1, 0.4, -0.1);
