@@ -30,7 +30,7 @@ var FSHADER_SOURCE = `
 
   void main() {
     gl_FragColor = u_FragColor;
-    //gl_FragColor = vec4(v_UV, 1.0, 1.0);
+    gl_FragColor = vec4(v_UV, 1.0, 1.0);
   }`
 
 // global vars
@@ -174,7 +174,10 @@ function renderAllShapes() {
   // projMat.setPerspective(30, 1, 1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
-  let globalRotMat = new Matrix4().rotate(-40, 1, 0, 0);
+  let globalRotMat = new Matrix4();
+  globalRotMat.setRotate(g_cameraAngleX, 1, 0, 0);
+  globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
+  globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
   // Clear <canvas>
