@@ -28,9 +28,21 @@ var FSHADER_SOURCE = `
   varying vec2 v_UV;
   uniform vec4 u_FragColor;
 
+  uniform sampler2D u_Sampler0;
+  uniform sampler2D u_Sampler1;
+
+  uniform int u_textureOption;
+
   void main() {
-    gl_FragColor = u_FragColor;
-    gl_FragColor = vec4(v_UV, 1.0, 1.0);
+    if(u_textureOption == 0) {  
+      gl_FragColor = u_FragColor;
+    } else if(u_textureOption == 1) {
+      gl_FragColor = vec4(v_UV, 1.0, 1.0);
+    } else if(u_textureOption == 2) {
+      gl_FragColor = texture2D(u_Sampler0, v_UV);
+    } else if(u_textureOption == 3) {
+      gl_FragColor = texture2D(u_Sampler1, v_UV);
+    }
   }`
 
 // global vars
@@ -44,6 +56,11 @@ let u_ModelMatrix;
 let u_ProjectionMatrix;
 let u_ViewMatrix;
 let u_GlobalRotateMatrix;
+
+let u_Sampler0;
+let u_Sampler1;
+
+let u_textureOption;
 
 let g_cameraAngleX = 0;
 let g_cameraAngleY = 0;
@@ -113,6 +130,24 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+  if(!u_Sampler0) {
+    console.log('Failed to create sampler object');
+    return false;
+  }
+
+  u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+  if(!u_Sampler1) {
+    console.log('Failed to create sampler object');
+    return false;
+  }
+
+  u_textureOption = gl.getUniformLocation(gl.program, 'u_textureOption');
+  if(!u_textureOption) {
+    console.log('Failed to create texture option object');
+    return false;
+  }
+
   let x = new Matrix4();
   
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
@@ -120,6 +155,69 @@ function connectVariablesToGLSL() {
   gl.uniformMatrix4fv(u_ViewMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, x.elements);
 }
+
+function initTextures() {
+  let image0 = new Image();
+  if(!image0) {
+    console.log('Failed to create image object');
+    return false;
+  }
+
+  image0.onload = function() { loadTexture0(image0); };
+  image0.src = './../images/sky.jpg';
+
+  let image1 = new Image();
+  if(!image1) {
+    console.log('Failed to create image object');
+    return false;
+  }
+
+  image1.onload = function() { loadTexture1(image1); };
+  image1.src = './../images/dirt.jpg';
+
+  return true;
+}
+
+function loadTexture0(image) {
+  let texture = gl.createTexture();
+  if(!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler0, 0);
+
+  console.log("Texture0 loaded");
+}
+
+function loadTexture1(image) {
+  let texture = gl.createTexture();
+  if(!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler1, 1);
+
+  console.log("Texture1 loaded");
+}
+
 
 function addActionListeners() {
   // button events
@@ -185,7 +283,15 @@ function renderAllShapes() {
 
   let a = new Cube();
   a.color = [1, 0, 0, 1];
+  a.matrix.scale = [0.5, 0.5, 0.5];
+  a.sampler = u_Sampler0;
   a.render();
+
+  let b = new Cube();
+  b.color = [1, 0, 0, 1];
+  b.matrix.scale = [0.5, 0.5, 0.5];
+  b.sampler = u_Sampler1;
+  b.render();
 
   // let body = new Cube();
   // body.color = [1.0, 0, 0, 1.0];
@@ -229,8 +335,7 @@ function main() {
 
   addActionListeners();
 
-  // canvas.onmousedown = handleClicks //function(ev){ click(ev, gl, canvas, a_Position, u_FragColor) };
-  // canvas.onmousemove = function(ev) {if(ev.buttons == 1) {handleClicks(ev);};};
+  initTextures();
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);

@@ -3,6 +3,7 @@ class Cube {
         this.type = 'cube';
         this.color = [0.5, 0.5, 0.5, 0.5];
         this.matrix = new Matrix4();
+        this.textureOption = 3;
     }
 
     render() {
@@ -24,7 +25,8 @@ class Cube {
 
         // front of the cube
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-
+        
+        gl.uniform1i(u_textureOption, this.textureOption);
 
         drawTriangle3DUV([0.0, 0.0, 0.0,  1.0, 1.0, 0.0,  1.0, 0.0, 0.0], [0,0,     1,1,     1,0]);
         
