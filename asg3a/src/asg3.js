@@ -286,20 +286,35 @@ function renderAllShapes() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   let sky = new Cube();
+  sky.textureOption = 2;
   sky.color = [1, 0, 0, 1];
   sky.matrix.translate(-1, -1, -1);
   sky.matrix.scale(100, 100, 100);
-  sky.textureOption = 2;
   sky.matrix.translate(-0.5, -0.5, -0.5)
   sky.render();
 
   let floor = new Cube();
+  floor.textureOption = 3;
   floor.color = [1, 0, 0, 1];
   floor.matrix.translate(0, -0.75, 0.0);
   floor.matrix.scale(10, 0, 10);
   floor.matrix.translate(-0.5, 0, -0.5);
   floor.textureOption = 3;
   floor.render();
+
+  let random_cube = new Cube();
+  random_cube.color = [1, 0, 0, 1];
+  random_cube.textureOption = 1;
+  random_cube.matrix.translate(0, -0.1, -0.3);
+  random_cube.matrix.scale(0.1, 0.1, 0.1);
+  random_cube.render();
+
+  let random_cube2 = new Cube();
+  random_cube2.color = [1, 0, 0, 1];
+  random_cube2.textureOption = 0;
+  random_cube2.matrix.translate(-0.2, -0.1, -0.3);
+  random_cube2.matrix.scale(0.1, 0.1, 0.1);
+  random_cube2.render();
 
   // let body = new Cube();
   // body.color = [1.0, 0, 0, 1.0];
