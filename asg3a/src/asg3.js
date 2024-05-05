@@ -283,13 +283,15 @@ function renderAllShapes() {
 
   let a = new Cube();
   a.color = [1, 0, 0, 1];
-  a.matrix.scale = [0.5, 0.5, 0.5];
-  a.sampler = u_Sampler0;
+  a.matrix.scale(0.5, 0.5, 0.5);
+  a.textureOption = 2;
   a.render();
 
   let b = new Cube();
   b.color = [1, 0, 0, 1];
-  b.matrix.scale = [0.5, 0.5, 0.5];
+  b.matrix.translate(0.5, 0.5, 0.0);
+  b.matrix.scale(0.5, 0.5, 0.5);
+  b.textureOption = 1;
   b.sampler = u_Sampler1;
   b.render();
 

@@ -3,7 +3,7 @@ class Cube {
         this.type = 'cube';
         this.color = [0.5, 0.5, 0.5, 0.5];
         this.matrix = new Matrix4();
-        this.textureOption = 3;
+        this.textureOption = 0;
     }
 
     render() {
