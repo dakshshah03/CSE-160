@@ -210,6 +210,8 @@ function loadTexture1(image) {
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
@@ -265,15 +267,17 @@ function convertMouseToEventCoords(ev) {
 
 function renderAllShapes() {
   var start_time = performance.now();
+
   let viewMat = new Matrix4();
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   let projMat = new Matrix4();
-  // projMat.setPerspective(30, 1, 1, 100);
+  projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   let globalRotMat = new Matrix4();
-  globalRotMat.setRotate(g_cameraAngleX, 1, 0, 0);
+  // globalRotMat.setRotate(20, 1, 0, 0);
+  globalRotMat.rotate(g_cameraAngleX, 1, 0, 0);
   globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -281,19 +285,21 @@ function renderAllShapes() {
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  let a = new Cube();
-  a.color = [1, 0, 0, 1];
-  a.matrix.scale(0.5, 0.5, 0.5);
-  a.textureOption = 2;
-  a.render();
+  let sky = new Cube();
+  sky.color = [1, 0, 0, 1];
+  sky.matrix.translate(-1, -1, -1);
+  sky.matrix.scale(100, 100, 100);
+  sky.textureOption = 2;
+  sky.matrix.translate(-0.5, -0.5, -0.5)
+  sky.render();
 
-  let b = new Cube();
-  b.color = [1, 0, 0, 1];
-  b.matrix.translate(0.5, 0.5, 0.0);
-  b.matrix.scale(0.5, 0.5, 0.5);
-  b.textureOption = 1;
-  b.sampler = u_Sampler1;
-  b.render();
+  let floor = new Cube();
+  floor.color = [1, 0, 0, 1];
+  floor.matrix.translate(0, -0.75, 0.0);
+  floor.matrix.scale(10, 0, 10);
+  floor.matrix.translate(-0.5, 0, -0.5);
+  floor.textureOption = 3;
+  floor.render();
 
   // let body = new Cube();
   // body.color = [1.0, 0, 0, 1.0];

@@ -22,6 +22,16 @@ Notes to the grader:
         margin-right: 20px;
         width: 100%;
       }
+      .slider {
+        display: block;
+        /*min and max changes size of slider?*/
+        height: 30px;
+        min-width: 260px;
+        max-width: 640px;
+        margin: auto;
+        margin-top: 20px;
+        position: relative;
+      }
     </style>
   </head>
 
@@ -44,11 +54,11 @@ Notes to the grader:
         <div class="slider-cont" id="camera-angle-segment">
           Camera Angle 
           <br>
-          X:<input type="range" min="-90" max="90" value="0" class="slider" id="cam-angle-x">
+          X:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-x">
           <br>
-          Y:<input type="range" min="-90" max="90" value="0" class="slider" id="cam-angle-y">
+          Y:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-y">
           <br>
-          Z:<input type="range" min="-90" max="90" value="0" class="slider" id="cam-angle-z">
+          Z:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-z">
         </div>
 
       </div>
