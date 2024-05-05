@@ -6,8 +6,6 @@
 
 // Vertex shader program
 var VSHADER_SOURCE = `
-  precision mediump float;
-
   attribute vec4 a_Position;
   attribute vec2 a_UV;
 
@@ -21,7 +19,7 @@ var VSHADER_SOURCE = `
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
-  }`;
+  }`
 
 // Fragment shader program
 var FSHADER_SOURCE = `
@@ -33,7 +31,7 @@ var FSHADER_SOURCE = `
   void main() {
     gl_FragColor = u_FragColor;
     //gl_FragColor = vec4(v_UV, 1.0, 1.0);
-  }`;
+  }`
 
 // global vars
 let canvas;
@@ -118,6 +116,9 @@ function connectVariablesToGLSL() {
   let x = new Matrix4();
   
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, x.elements);
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, x.elements);
 }
 
 function addActionListeners() {
@@ -164,25 +165,32 @@ function convertMouseToEventCoords(ev) {
   return([x, y]);
 }
 
-
-// make https://media1.tenor.com/m/OoGJfgQGlOkAAAAd/deer-dancing.gif
-
-
 function renderAllShapes() {
   var start_time = performance.now();
   let viewMat = new Matrix4();
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
+  let projMat = new Matrix4();
+  // projMat.setPerspective(30, 1, 1, 100);
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
-  let globalRotMat = new Matrix4();
+  let globalRotMat = new Matrix4().rotate(-40, 1, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  let x = new Cube();
-  x.color = [1, 0, 0, 1];
-  x.render();
+  let a = new Cube();
+  a.color = [1, 0, 0, 1];
+  a.render();
+
+  // let body = new Cube();
+  // body.color = [1.0, 0, 0, 1.0];
+  // body.matrix.translate(-0.25, -0.5, 0.0);
+  // body.matrix.scale(0.5, 1, 0.5);
+  // body.render();
+
+
 
   var duration = performance.now() - start_time;
   sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
