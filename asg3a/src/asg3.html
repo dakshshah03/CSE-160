@@ -1,0 +1,83 @@
+<!--
+Daksh Shah
+ID: 1953946
+dakshah@ucsc.edu
+asg1.js
+
+Notes to the grader:
+- 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Daksh Shah CSE160 Assignment 3a</title>
+    <style>
+      .segment {
+        display: inline-flex;
+      }
+      .slider-cont {
+        margin-left: 20px;
+        margin-right: 20px;
+        width: 100%;
+      }
+      .slider {
+        display: block;
+        /*min and max changes size of slider?*/
+        height: 30px;
+        min-width: 260px;
+        max-width: 640px;
+        margin: auto;
+        margin-top: 20px;
+        position: relative;
+      }
+    </style>
+  </head>
+
+  <body onload="main()">
+    Daksh Shah
+    <br>
+    dakshah@ucsc.edu
+    <br><br>
+    Notes to Grader: <br>
+    <br>
+    <div class="segment">
+      <div class="segment" id="display-container">
+        <canvas id="webgl" width="400" height="400">
+          Please use a browser that supports "canvas"
+        </canvas>
+      </div>
+      <!-- <br> -->
+      <!-- head, body, and camera controls supercontainer -->
+      <div class="slider-cont">
+        <div class="slider-cont" id="camera-angle-segment">
+          Camera Angle 
+          <br>
+          X:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-x">
+          <br>
+          Y:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-y">
+          <br>
+          Z:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-z">
+        </div>
+
+      </div>
+      
+    </div>
+    <br>
+    <div class="segment" id="performance-display"></div>
+    <br>
+    
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="../lib/triangle.js"></script>
+    <script src="../lib/circle.js"></script>
+    <script src="../lib/cube.js"></script>
+    <script src="../lib/pyramid.js"></script>
+    <script src="asg3.js"></script>
+
+  </body>
+</html>
