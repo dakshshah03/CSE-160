@@ -55,7 +55,6 @@ class Camera {
     
     moveRight() {
         let f = new Vector3();
-        console.log(this.at.elements);
         f.set(this.at);
         f.sub(this.eye);
 
@@ -103,7 +102,26 @@ class Camera {
         f.sub(this.eye);
         
         // vector is orthogonal to f and up, aka it points up
-        let s = Vector3.cross(f, this.up).elements;
+        let s = Vector3.cross(f, this.up);
+        s.normalize();
+
+        let rotationMatrix = new Matrix4();
+        rotationMatrix.setRotate(-alpha, s.elements[0], s.elements[1], s.elements[2]);
+
+        let f_prime = rotationMatrix.multiplyVector3(f);
+        f_prime.normalize();
+
+        this.at.set(this.eye);
+        this.at.add(f_prime);
+    }
+
+    panDown() {
+        let f = new Vector3();
+        f.set(this.at);
+        f.sub(this.eye);
+        
+        // vector is orthogonal to f and up, aka it points up
+        let s = Vector3.cross(f, this.up);
         s.normalize();
 
         let rotationMatrix = new Matrix4();

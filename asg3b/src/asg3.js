@@ -242,63 +242,44 @@ function loadTexture1(image) {
 function rotateCamera(ev) {
   // camera.panLeft(ev.movementX);
   camera.panRight(ev.movementX*0.1);
+  camera.panUp(ev.movementY*0.1);
 }
 
 
 function addActionListeners() {
-  // button events
-  // document.getElementById('toggle-animation').onclick = function() {g_animationActive = !g_animationActive;};
-  // document.getElementById('toggle-shift').onclick = function() {g_animationShift = !g_animationShift;};
-  
-  // slider events
-  // document.getElementById('cam-angle-x').addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
-  // document.getElementById('cam-angle-y').addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
-  // document.getElementById('cam-angle-z').addEventListener('mousemove', function() {g_cameraAngleZ = this.value; renderAllShapes();});
-
-
-
   // mouse events
-  canvas.addEventListener("pointerlockchange", function(ev) {
-    canvas.onmousemove = (ev) => rotateCamera(ev);
+  canvas.onclick = function(ev) {
+    if(!document.pointerLockElement) {
+      canvas.requestPointerLock();
+    }
+  }
+  document.addEventListener('pointerlockchange', function(ev) {
+    if(document.pointerLockElement === canvas) {
+      canvas.onmousemove = (ev) => rotateCamera(ev);
+    } else {
+      canvas.onmousemove = null;
+    }
   });
-
-  // document.getElementById('display-container').addEventListener('click', function(ev) {
-  //   if(ev.shiftKey) {
-  //     g_animationShift = !g_animationShift;
-  //   }
-  // });
-
-  // canvas.onmousemove = function(ev) {
-  //   let [x, y] = convertMouseToEventCoords(ev);
-  //   if(ev.buttons == 1) {
-  //     g_cameraAngleY -= (x - g_deltaX) * 120;
-  //     g_cameraAngleX -= (y - g_deltaY) * 120;
-  //     g_deltaX = x;
-  //     g_deltaY = y;
-  //   } else {
-  //     g_deltaX = x;
-  //     g_deltaY = y;
-  //   }
-  // }
 }
 
-
-let g_eye = [0,0,3];
-let g_lookat = [0,0,-100];
-let g_up = [0,1,0];
 
 function keydown(ev) {
   if(ev.keyCode == 39 || ev.keyCode == 68) {
     camera.moveRight();
-  } else if(ev.keyCode == 37 || ev.keyCode == 65) {
+  }
+  if(ev.keyCode == 37 || ev.keyCode == 65) {
     camera.moveLeft();
-  } else if(ev.keyCode == 38 || ev.keyCode == 87) {
+  }
+  if(ev.keyCode == 38 || ev.keyCode == 87) {
     camera.moveForward();
-  } else if(ev.keyCode == 40 || ev.keyCode == 83) {
+  }
+  if(ev.keyCode == 40 || ev.keyCode == 83) {
     camera.moveBackward();
-  } else if(ev.keyCode == 81) {
+  }
+  if(ev.keyCode == 81) {
     camera.panLeft(5);
-  } else if(ev.keyCode == 69) {
+  }
+  if(ev.keyCode == 69) {
     camera.panRight(5);
   }
   renderAllShapes();
@@ -322,7 +303,7 @@ function renderAllShapes() {
   // let projMat = new Matrix4();
   // projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
   // console.log(g_deltaX * 360);
-  camera.mousePan(g_cameraAngleX, g_cameraAngleY);
+  // camera.mousePan(g_cameraAngleX, g_cameraAngleY);
   let projMat = camera.projectionMatrix;
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
   
