@@ -11,10 +11,11 @@ class Camera {
             this.up.elements[0], this.up.elements[1], this.up.elements[2]
         );
         this.projectionMatrix = new Matrix4();
-        this.projectionMatrix.setPerspective(this.fov, canvas.width/canvas.height, 0.05, 1000);
+        this.projectionMatrix.setPerspective(this.fov, canvas.width/canvas.height, 0.1, 1000);
 
         this.speed = 0.1;
-        this.alpha = 2.5;
+        this.y = 0;
+        this.xAngle = 0;
     }
 
     moveForward() {
@@ -66,13 +67,13 @@ class Camera {
         this.at.add(s);
     }
 
-    panLeft() {
+    panLeft(alpha) {
         let f = new Vector3();
         f.set(this.at);
         f.sub(this.eye);
         
         let rotationMatrix = new Matrix4();
-        rotationMatrix.setRotate(this.alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+        rotationMatrix.setRotate(alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
 
         let f_prime = rotationMatrix.multiplyVector3(f);
         f_prime.normalize();
@@ -81,18 +82,41 @@ class Camera {
         this.at.add(f_prime);
     }
 
-    panRight() {
+    panRight(alpha) {
         let f = new Vector3();
         f.set(this.at);
         f.sub(this.eye);
         
         let rotationMatrix = new Matrix4();
-        rotationMatrix.setRotate(-this.alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+        rotationMatrix.setRotate(-alpha, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+
+        let f_prime = rotationMatrix.multiplyVector3(f);
+        f_prime.normalize();
+        
+        this.at.set(this.eye);
+        this.at.add(f_prime);
+    }
+
+    panUp(alpha) {
+        let f = new Vector3();
+        f.set(this.at);
+        f.sub(this.eye);
+        
+        // vector is orthogonal to f and up, aka it points up
+        let s = Vector3.cross(f, this.up).elements;
+        s.normalize();
+
+        let rotationMatrix = new Matrix4();
+        rotationMatrix.setRotate(alpha, s.elements[0], s.elements[1], s.elements[2]);
 
         let f_prime = rotationMatrix.multiplyVector3(f);
         f_prime.normalize();
 
         this.at.set(this.eye);
         this.at.add(f_prime);
+    }
+
+    mousePan(dX, dY) {
+        this.panRight(dX);
     }
 }
