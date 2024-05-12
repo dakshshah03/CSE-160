@@ -242,6 +242,9 @@ function loadTexture1(image) {
 function rotateCamera(ev) {
   // camera.panLeft(ev.movementX);
   camera.panRight(ev.movementX*0.1);
+  // console.log(camera.at.elements[1]);
+  // console.log("-----------------------");
+  // console.log(camera.eye.elements[1]);
   camera.panUp(ev.movementY*0.1);
 }
 
@@ -264,6 +267,7 @@ function addActionListeners() {
 
 
 function keydown(ev) {
+  // console.log(camera.at.elements);
   if(ev.keyCode == 39 || ev.keyCode == 68) {
     camera.moveRight();
   }
@@ -324,22 +328,24 @@ function renderAllShapes() {
   // globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
+
+
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   let sky = new Cube();
   sky.textureOption = 2;
   sky.color = [1, 0, 0, 1];
-  sky.matrix.translate(-1, -1, -1);
-  sky.matrix.scale(100, 100, 100);
-  sky.matrix.translate(-0.5, -0.5, -0.5);
+  sky.matrix.translate(0, -1.2, 0);
+  sky.matrix.scale(8, 8, 8);
+  sky.matrix.translate(-0.5, 0, -0.5);
   sky.renderSkybox();
 
   let floor = new Cube();
   floor.textureOption = 3;
   floor.color = [1, 0, 0, 1];
-  floor.matrix.translate(0, -0.75, 0.0);
-  floor.matrix.scale(10, 0, 10);
+  floor.matrix.translate(0, -1.1, 0.0);
+  floor.matrix.scale(8, 0, 8);
   floor.matrix.translate(-0.5, 0, -0.5);
   floor.textureOption = 3;
   floor.render();
@@ -348,14 +354,14 @@ function renderAllShapes() {
   random_cube.color = [1, 0, 0, 1];
   random_cube.textureOption = 1;
   random_cube.matrix.translate(0, -0.6, -0.3);
-  random_cube.matrix.scale(0.1, 0.1, 0.1);
+  random_cube.matrix.scale(0.25, 0.25, 0.25);
   random_cube.render();
 
   let random_cube2 = new Cube();
   random_cube2.color = [1, 0, 0, 1];
   random_cube2.textureOption = 0;
-  random_cube2.matrix.translate(-0.2, -0.6, -0.3);
-  random_cube2.matrix.scale(0.1, 0.1, 0.1);
+  random_cube2.matrix.translate(-1, -1, -1);
+  random_cube2.matrix.scale(0.25, 0.25, 0.25);
   random_cube2.render();
 
   // let body = new Cube();
@@ -366,6 +372,8 @@ function renderAllShapes() {
 
   var duration = performance.now() - start_time;
   sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
+  sendTextToHTML("Coordinates x: " + camera.eye.elements[0] + " y: " + camera.eye.elements[1] + " z: " + camera.eye.elements[2], 'camera-position');
+  sendTextToHTML("Looking at x: " + camera.at.elements[0] + " y: " + camera.at.elements[1] + " z: " + camera.at.elements[2], 'lookat-position');
 }
 
 function sendTextToHTML(txt, htmlID) {

@@ -97,6 +97,9 @@ class Camera {
     }
 
     panUp(alpha) {
+        if(this.at.elements[1] - this.eye.elements[1] > 0.99 && alpha < 0) return;
+        
+        if(this.at.elements[1] - this.eye.elements[1] < -0.99 && alpha > 0) return;
         let f = new Vector3();
         f.set(this.at);
         f.sub(this.eye);
