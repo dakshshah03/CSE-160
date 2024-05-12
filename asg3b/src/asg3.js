@@ -57,6 +57,7 @@ let u_ModelMatrix;
 let u_ProjectionMatrix;
 let u_ViewMatrix;
 let u_GlobalRotateMatrix;
+let camera;
 // let u_texColorWeight;
 
 let u_Sampler0;
@@ -157,11 +158,16 @@ function connectVariablesToGLSL() {
   }
 
   let x = new Matrix4();
+  camera = new Camera();
+  camera.eye = new Vector3([0, 0, 3]);
+  camera.at = new Vector3([0, 0, -100]);
+  camera.up = new Vector3([0, 1, 0]);
   
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ViewMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, x.elements);
+
 }
 
 function initTextures() {
@@ -261,15 +267,24 @@ function addActionListeners() {
   // }
 }
 
+
 let g_eye = [0,0,3];
 let g_lookat = [0,0,-100];
 let g_up = [0,1,0];
 
 function keydown(ev) {
   if(ev.keyCode == 39) {
-    g_eye[0] += 0.2;
+    camera.moveRight();
   } else if(ev.keyCode == 37) {
-    g_eye[0] -= 0.2;
+    camera.moveLeft();
+  } else if(ev.keyCode == 38) {
+    camera.moveForward();
+  } else if(ev.keyCode == 40) {
+    camera.moveBackward();
+  } else if(ev.keyCode == 81) {
+    camera.panLeft();
+  } else if(ev.keyCode == 69) {
+    camera.panRight();
   }
   renderAllShapes();
   console.log(ev.keyCode);
@@ -289,13 +304,19 @@ function convertMouseToEventCoords(ev) {
 function renderAllShapes() {
   var start_time = performance.now();
 
-  let projMat = new Matrix4();
-  projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
+  // let projMat = new Matrix4();
+  // projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
+  let projMat = camera.projectionMatrix;
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
-
   
-  let viewMat = new Matrix4();
+  // let viewMat = new Matrix4();
   // viewMat.setLookAt(g_eye[0], g_eye[1], g_eye[2], g_lookat[0], g_lookat[1], g_lookat[2], g_up[0], g_up[1], g_up[2]); // eye at up
+  let viewMat = camera.viewMatrix;
+  viewMat.setLookAt(
+    camera.eye.elements[0], camera.eye.elements[1], camera.eye.elements[2],
+    camera.at.elements[0], camera.at.elements[1], camera.at.elements[2],
+    camera.up.elements[0], camera.up.elements[1], camera.up.elements[2]
+);
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   let globalRotMat = new Matrix4();
@@ -313,7 +334,7 @@ function renderAllShapes() {
   sky.color = [1, 0, 0, 1];
   sky.matrix.translate(-1, -1, -1);
   sky.matrix.scale(100, 100, 100);
-  sky.matrix.translate(-0.5, -0.5, -0.5)
+  sky.matrix.translate(-0.5, -0.5, -0.5);
   sky.render();
 
   let floor = new Cube();
@@ -366,7 +387,6 @@ var g_seconds = performance.now()/1000.0 - g_startTime;
 function tick() {
   // console.log(g_seconds);
   g_seconds = performance.now()/1000.0 - g_startTime;
-  
 
   renderAllShapes();
 
