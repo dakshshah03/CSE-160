@@ -58,6 +58,7 @@ let u_ProjectionMatrix;
 let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 let camera;
+let world;
 // let u_texColorWeight;
 
 let u_Sampler0;
@@ -167,6 +168,8 @@ function connectVariablesToGLSL() {
   camera.eye = new Vector3([0, -0.5, 3]);
   camera.at = new Vector3([0, 0, -100]);
   camera.up = new Vector3([0, 1, 0]);
+
+  world = new World();
   
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
@@ -333,6 +336,8 @@ function renderAllShapes() {
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  world.drawMap();
+
   let sky = new Cube();
   sky.textureOption = 2;
   sky.color = [1, 0, 0, 1];
@@ -353,16 +358,16 @@ function renderAllShapes() {
   let random_cube = new Cube();
   random_cube.color = [1, 0, 0, 1];
   random_cube.textureOption = 1;
-  random_cube.matrix.translate(0, -0.6, -0.3);
+  random_cube.matrix.translate(-0.75, -1, -1.25);
   random_cube.matrix.scale(0.25, 0.25, 0.25);
-  random_cube.render();
+  // random_cube.render();
 
   let random_cube2 = new Cube();
   random_cube2.color = [1, 0, 0, 1];
   random_cube2.textureOption = 0;
   random_cube2.matrix.translate(-1, -1, -1);
   random_cube2.matrix.scale(0.25, 0.25, 0.25);
-  random_cube2.render();
+  // random_cube2.render();
 
   // let body = new Cube();
   // body.color = [1.0, 0, 0, 1.0];
