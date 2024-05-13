@@ -1,0 +1,94 @@
+<!--
+Daksh Shah
+ID: 1953946
+dakshah@ucsc.edu
+asg1.js
+
+Notes to the grader:
+- 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Build College 11</title>
+    <style>
+      .segment {
+        display: inline-flex;
+      }
+      .slider-cont {
+        margin-left: 20px;
+        margin-right: 20px;
+        width: 100%;
+      }
+      .slider {
+        display: block;
+        /*min and max changes size of slider?*/
+        height: 30px;
+        min-width: 260px;
+        max-width: 640px;
+        margin: auto;
+        margin-top: 20px;
+        position: relative;
+      }
+    </style>
+  </head>
+
+  <body onload="main()">
+    Daksh Shah
+    <br>
+    dakshah@ucsc.edu
+    <br><br>
+    Notes to Grader: <br>
+    - Left click to place blocks (Note: this is finicky so it may take a bit to get the block to place correctly) <br>
+    - Right click to remove blocks (Note: this is finicky so it may take a bit to get the block to remove correctly) <br>
+    - WASD and Arrow keys can be used for movement (Note: Don't hold the keys or it will lag, repeatedly tap the keys for movement)<br>
+    - Click on the canvas to gain mouse controls <br>
+    - Objective: Build Housing in College 11 for the "Deer"<br>
+
+    <br>
+    <div class="segment">
+      <div class="segment" id="display-container">
+        <canvas id="webgl" width="1200" height="600">
+          Please use a browser that supports "canvas"
+        </canvas>
+      </div>
+      <!-- <br> -->
+      <!-- head, body, and camera controls supercontainer -->
+      <!-- <div class="slider-cont">
+        <div class="slider-cont" id="camera-angle-segment">
+          Camera Angle 
+          <br>
+          X:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-x">
+          <br>
+          Y:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-y">
+          <br>
+           Z:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-z"> 
+        </div>
+
+      </div> -->
+      
+    </div>
+    <br>
+    <div class="segment" id="performance-display"></div>
+    <br>
+    <div class="segment" id="camera-position"></div>
+    <br>
+    <div class="segment" id="lookat-position"></div>
+    
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src="../lib/cuon-matrix-cse160.js"></script>
+    <script src="../lib/triangle.js"></script>
+    <script src="../lib/circle.js"></script>
+    <script src="../lib/cube.js"></script>
+    <script src="../lib/pyramid.js"></script>
+    <script src="camera.js"></script>
+    <script src="world.js"></script>
+    <script src="asg3.js"></script>
+
+  </body>
+</html>
