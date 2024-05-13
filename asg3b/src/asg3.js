@@ -30,6 +30,8 @@ var FSHADER_SOURCE = `
 
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
+  uniform sampler2D u_Sampler2;
+  uniform sampler2D u_Sampler3;
 
   uniform int u_textureOption;
   uniform float u_texColorWeight;
@@ -43,8 +45,19 @@ var FSHADER_SOURCE = `
       gl_FragColor = texture2D(u_Sampler0, v_UV);
     } else if(u_textureOption == 3) {
       gl_FragColor = texture2D(u_Sampler1, v_UV);
+    } else if(u_textureOption == 4) {
+      gl_FragColor = texture2D(u_Sampler2, v_UV);
+    } else if(u_textureOption == 5) {
+      gl_FragColor = texture2D(u_Sampler3, v_UV);
     }
   }`
+
+const SKY = 2;
+const GRASS_BOTTOM = 3;
+const GRASS_SIDE = 4;
+const GRASS_TOP = 5;
+const DIRT = 3;
+
 
 // global vars
 let canvas;
@@ -57,6 +70,7 @@ let u_ModelMatrix;
 let u_ProjectionMatrix;
 let u_ViewMatrix;
 let u_GlobalRotateMatrix;
+let u_textureSegment;
 let camera;
 let world;
 // let u_texColorWeight;
@@ -147,13 +161,25 @@ function connectVariablesToGLSL() {
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if(!u_Sampler0) {
-    console.log('Failed to create sampler object');
+    console.log('Failed to create sampler0 object');
     return false;
   }
 
   u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
   if(!u_Sampler1) {
-    console.log('Failed to create sampler object');
+    console.log('Failed to create sampler1 object');
+    return false;
+  }
+
+  u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
+  if(!u_Sampler2) {
+    console.log('Failed to create sampler2 object');
+    return false;
+  }
+
+  u_Sampler3 = gl.getUniformLocation(gl.program, 'u_Sampler3');
+  if(!u_Sampler3) {
+    console.log('Failed to create sampler3 object');
     return false;
   }
 
@@ -186,7 +212,7 @@ function initTextures() {
   }
 
   image0.onload = function() { loadTexture0(image0); };
-  image0.src = './../images/sky.jpg';
+  image0.src = './../images/void.jpg';
 
   let image1 = new Image();
   if(!image1) {
@@ -196,6 +222,22 @@ function initTextures() {
 
   image1.onload = function() { loadTexture1(image1); };
   image1.src = './../images/dirt.jpg';
+
+  let image2 = new Image();
+  if(!image2) {
+    console.log('Failed to create image object');
+  }
+
+  image2.onload = function() { loadTexture2(image2); };
+  image2.src = './../images/grassSide.jpg';
+
+  let image3 = new Image();
+  if(!image3) {
+    console.log('Failed to create image object');
+  }
+
+  image3.onload = function() { loadTexture3(image3); };
+  image3.src = './../images/grasstop.jpg';
 
   return true;
 }
@@ -232,14 +274,92 @@ function loadTexture1(image) {
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
   gl.uniform1i(u_Sampler1, 1);
 
   console.log("Texture1 loaded");
+}
+
+function loadTexture2(image) {
+  let texture = gl.createTexture();
+  if(!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.activeTexture(gl.TEXTURE2);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler2, 2);
+
+  console.log("Texture2 loaded");
+}
+
+function loadTexture3(image) {
+  let texture = gl.createTexture();
+  if(!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler3, 3);
+
+  console.log("Texture3 loaded");
+}
+
+function loadTexture4(image) {
+  let texture = gl.createTexture();
+  if(!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.activeTexture(gl.TEXTURE4);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler4, 3);
+
+  console.log("Texture4 loaded");
+}
+
+function loadTexture5(image) {
+  let texture = gl.createTexture();
+  if(!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.activeTexture(gl.TEXTURE5);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+  gl.uniform1i(u_Sampler5, 3);
+
+  console.log("Texture5 loaded");
 }
 
 function rotateCamera(ev) {
@@ -339,25 +459,24 @@ function renderAllShapes() {
   world.drawMap();
 
   let sky = new Cube();
-  sky.textureOption = 2;
-  sky.color = [1, 0, 0, 1];
+  sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
+  sky.color = [1, 1, 1, 1];
   sky.matrix.translate(0, -1.2, 0);
   sky.matrix.scale(8, 8, 8);
   sky.matrix.translate(-0.5, 0, -0.5);
   sky.renderSkybox();
 
   let floor = new Cube();
-  floor.textureOption = 3;
-  floor.color = [1, 0, 0, 1];
+  floor.textureOption = [DIRT, DIRT, DIRT, DIRT, DIRT, DIRT];
+  floor.color = [.5, .5, .5, 1];
   floor.matrix.translate(0, -1.1, 0.0);
-  floor.matrix.scale(8, 0, 8);
+  floor.matrix.scale(8, 0, 4);
   floor.matrix.translate(-0.5, 0, -0.5);
-  floor.textureOption = 3;
   floor.render();
 
   let random_cube = new Cube();
   random_cube.color = [1, 0, 0, 1];
-  random_cube.textureOption = 1;
+  random_cube.textureOption = [GRASS_SIDE, GRASS_SIDE, GRASS_SIDE, GRASS_SIDE, GRASS_TOP, GRASS_BOTTOM];
   random_cube.matrix.translate(-0.75, -1, -1.25);
   random_cube.matrix.scale(0.25, 0.25, 0.25);
   // random_cube.render();
@@ -376,7 +495,7 @@ function renderAllShapes() {
   // body.render();
 
   var duration = performance.now() - start_time;
-  sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration), 'performance-display');
+  sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(1000/duration), 'performance-display');
   sendTextToHTML("Coordinates x: " + camera.eye.elements[0] + " y: " + camera.eye.elements[1] + " z: " + camera.eye.elements[2], 'camera-position');
   sendTextToHTML("Looking at x: " + camera.at.elements[0] + " y: " + camera.at.elements[1] + " z: " + camera.at.elements[2], 'lookat-position');
 }

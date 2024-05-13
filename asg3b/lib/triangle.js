@@ -55,7 +55,7 @@ class Triangle {
 }
 
 function drawTriangle3D(vertices) {
-  var n = 3; // The number of vertices
+  var n = vertices.length/3; // The number of vertices
 
   let vbuffer = gl.createBuffer();
   if (!vbuffer) {
@@ -77,14 +77,14 @@ function drawTriangle3D(vertices) {
 }
 
 // built for interleaved buffers
-function drawTriangle3DUV(vertices, uv) {
+function drawTriangle3DUV(vbuffer, uvbuffer, vertices, uv) {
   var n = 3; // The number of vertices
 
-  let vbuffer = gl.createBuffer();
-  if (!vbuffer) {
-    console.log("Failed to create the vbuffer object");
-    return -1;
-  }
+  // let vbuffer = gl.createBuffer();
+  // if (!vbuffer) {
+  //   console.log("Failed to create the vbuffer object");
+  //   return -1;
+  // }
 
   // Bind the buffer object to target
   gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
@@ -99,11 +99,11 @@ function drawTriangle3DUV(vertices, uv) {
   gl.enableVertexAttribArray(a_Position);
 
   
-  let uvbuffer = gl.createBuffer();
-  if (!uvbuffer) {
-    console.log("Failed to create the uvbuffer object");
-    return -1;
-  }
+  // let uvbuffer = gl.createBuffer();
+  // if (!uvbuffer) {
+  //   console.log("Failed to create the uvbuffer object");
+  //   return -1;
+  // }
 
   // uv coords
   gl.bindBuffer(gl.ARRAY_BUFFER, uvbuffer);
