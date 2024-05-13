@@ -32,6 +32,8 @@ var FSHADER_SOURCE = `
   uniform sampler2D u_Sampler1;
   uniform sampler2D u_Sampler2;
   uniform sampler2D u_Sampler3;
+  uniform sampler2D u_Sampler4;
+  uniform sampler2D u_Sampler5;
 
   uniform int u_textureOption;
   uniform float u_texColorWeight;
@@ -49,6 +51,10 @@ var FSHADER_SOURCE = `
       gl_FragColor = texture2D(u_Sampler2, v_UV);
     } else if(u_textureOption == 5) {
       gl_FragColor = texture2D(u_Sampler3, v_UV);
+    } else if(u_textureOption == 6) {
+      gl_FragColor = texture2D(u_Sampler4, v_UV);
+    } else if(u_textureOption == 7) {
+      gl_FragColor = texture2D(u_Sampler5, v_UV);
     }
   }`
 
@@ -57,6 +63,7 @@ const GRASS_BOTTOM = 3;
 const GRASS_SIDE = 4;
 const GRASS_TOP = 5;
 const DIRT = 3;
+const PLANK = 6;
 
 
 // global vars
@@ -77,6 +84,10 @@ let world;
 
 let u_Sampler0;
 let u_Sampler1;
+let u_Sampler2;
+let u_Sampler3;
+let u_Sampler4;
+let u_Sampler5;
 
 let u_textureOption;
 
@@ -183,6 +194,18 @@ function connectVariablesToGLSL() {
     return false;
   }
 
+  u_Sampler4 = gl.getUniformLocation(gl.program, 'u_Sampler4');
+  if(!u_Sampler4) {
+    console.log('Failed to create sampler4 object');
+    return false;
+  }
+
+  u_Sampler5 = gl.getUniformLocation(gl.program, 'u_Sampler5');
+  if(!u_Sampler5) {
+    console.log('Failed to create sampler5 object');
+    return false;
+  }
+
   u_textureOption = gl.getUniformLocation(gl.program, 'u_textureOption');
   if(!u_textureOption) {
     console.log('Failed to create texture option object');
@@ -191,7 +214,7 @@ function connectVariablesToGLSL() {
 
   let x = new Matrix4();
   camera = new Camera();
-  camera.eye = new Vector3([0, -0.5, 3]);
+  camera.eye = new Vector3([0, 0, 3]);
   camera.at = new Vector3([0, 0, -100]);
   camera.up = new Vector3([0, 1, 0]);
 
@@ -238,6 +261,14 @@ function initTextures() {
 
   image3.onload = function() { loadTexture3(image3); };
   image3.src = './../images/grasstop.jpg';
+
+  let image4 = new Image();
+  if(!image4) {
+    console.log('Failed to create image object');
+  }
+
+  image4.onload = function() { loadTexture4(image4); };
+  image4.src = './../images/plank.jpg';
 
   return true;
 }
@@ -337,7 +368,7 @@ function loadTexture4(image) {
 
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
-  gl.uniform1i(u_Sampler4, 3);
+  gl.uniform1i(u_Sampler4, 4);
 
   console.log("Texture4 loaded");
 }
@@ -357,7 +388,7 @@ function loadTexture5(image) {
 
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
-  gl.uniform1i(u_Sampler5, 3);
+  gl.uniform1i(u_Sampler5, 5);
 
   console.log("Texture5 loaded");
 }
@@ -378,6 +409,12 @@ function addActionListeners() {
     if(!document.pointerLockElement) {
       canvas.requestPointerLock();
     }
+    console.log(ev.button);
+    if(ev.button == 0) {
+      world.placeBlock();
+    } else if(ev.button == 2) {
+      world.removeBlock();
+    }
   }
   document.addEventListener('pointerlockchange', function(ev) {
     if(document.pointerLockElement === canvas) {
@@ -386,6 +423,8 @@ function addActionListeners() {
       canvas.onmousemove = null;
     }
   });
+
+  
 }
 
 
@@ -457,6 +496,8 @@ function renderAllShapes() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   world.drawMap();
+  // world.placeBlock();
+  world.drawBlocks();
 
   let sky = new Cube();
   sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
@@ -495,9 +536,19 @@ function renderAllShapes() {
   // body.render();
 
   var duration = performance.now() - start_time;
+  let x_coord = Math.floor((camera.at.elements[0] + 4) * 4);
+  let y_coord = Math.floor((camera.at.elements[1] + 1) * 4 - 3);
+  let z_coord = Math.floor((camera.at.elements[2] + 4) * 4);
+
+  let x_eye = Math.floor((camera.eye.elements[0] + 4) * 4);
+  let y_eye = Math.floor((camera.eye.elements[1] + 1) * 4 - 3);
+  let z_eye = Math.floor((camera.eye.elements[2] + 4) * 4);
+
+
   sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(1000/duration), 'performance-display');
-  sendTextToHTML("Coordinates x: " + camera.eye.elements[0] + " y: " + camera.eye.elements[1] + " z: " + camera.eye.elements[2], 'camera-position');
-  sendTextToHTML("Looking at x: " + camera.at.elements[0] + " y: " + camera.at.elements[1] + " z: " + camera.at.elements[2], 'lookat-position');
+  // sendTextToHTML("Coordinates x: " + camera.eye.elements[0] + " y: " + camera.eye.elements[1] + " z: " + camera.eye.elements[2], 'camera-position');
+  sendTextToHTML("Coordinates x:" + x_eye + " y: " + y_eye + " z: " + z_eye, 'camera-position');
+  sendTextToHTML("Looking at x: " + x_coord + " y: " + y_coord + " z: " + z_coord, 'lookat-position');
 }
 
 function sendTextToHTML(txt, htmlID) {
