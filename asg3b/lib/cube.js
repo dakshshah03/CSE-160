@@ -134,6 +134,9 @@ class Cube {
         drawTriangle3DUV(this.vbuffer, this.uvbuffer, [0.0, 0.0, 0.0,  1.0, 0.0, 1.0,  1.0, 0.0, 0.0], [0,0,     1,1,     1,0]);
         drawTriangle3DUV(this.vbuffer, this.uvbuffer, [0.0, 0.0, 0.0,  0.0, 0.0, 1.0,  1.0, 0.0, 1.0], [0,0,     0,1,     1,1]);
 
+        gl.deleteBuffer(this.vbuffer);
+        gl.deleteBuffer(this.uvbuffer);
+
     }
 
     renderFast() {
