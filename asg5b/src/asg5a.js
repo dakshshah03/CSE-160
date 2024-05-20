@@ -45,7 +45,7 @@ function setUpScene() {
     const fov = 100;
     const aspect = 2;  // the canvas default
     const near = 0.1;
-    const far = 100; 
+    const far = 1000; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
     camera.position.z = 5;
     camera.position.x = -4;
@@ -94,6 +94,28 @@ function makeInstance(geometry, files, position) {
     return obj;
   }
 
+function createTree(location) {
+    const trunk_geometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 16);
+    const trunk_material = new THREE.MeshPhongMaterial({color: 0x6b5700});
+    const trunk = new THREE.Mesh(trunk_geometry, trunk_material);
+    scene.add(trunk);
+    trunk.position.x = location[0];
+    trunk.position.y = location[1];
+    trunk.position.z = location[2];
+
+    const leaves_geometry = new THREE.SphereGeometry(1, 30, 14);
+    // const leaves_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/scenery/leaves.jpg')});
+    const leaves_material = new THREE.MeshPhongMaterial({color: 0x00FF00});
+    const leaves = new THREE.Mesh(leaves_geometry, leaves_material);
+    scene.add(leaves);
+    leaves.position.x = location[0];
+    leaves.position.y = location[1] + 2;
+    leaves.position.z = location[2];
+
+    scene_items.push(trunk);
+    scene_items.push(leaves);
+}
+
 function createObjects() {
     const cube_geometry_1 = new THREE.BoxGeometry(1, 1, 1);
     // const cube_geometry_2 = new THREE.BoxGeometry(1, 1, 1);
@@ -123,6 +145,9 @@ function createObjects() {
         // makeInstance(torus_geometry_1, './../textures/Minecraft/pattern.jpg', [-3, 4, 4]),
     ];
 
+    // createTree([0, 0, 0]);
+    createTree([0, 0, 5]);
+
     mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
         mtl.preload();
         objLoader.setMaterials(mtl);
@@ -130,6 +155,25 @@ function createObjects() {
             scene.add(root);
             scene_items.push(root);
             root.position.x = -4;
+        });
+    });
+
+    loader.load('./../textures/scenery/SM_DiffJPG.jpg', (texture) => {
+        // texture.preload();
+        objLoader.load('./../textures/scenery/SnowyMountainMesh.obj', (root) => {
+            // root.position.x = 4;
+            root.position.y = -40;
+            // root.position.z = 0;
+            root.rotateOnAxis(new THREE.Vector3(1, 0, 0), -Math.PI/2);
+            root.scale.set(1000, 1000, 1000);
+            root.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.map = texture;
+                    child.material.needsUpdate = true;
+                }
+            });
+            scene.add(root);
+            scene_items.push(root);
         });
     });
 
