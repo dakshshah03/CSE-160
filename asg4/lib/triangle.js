@@ -114,3 +114,33 @@ function drawTriangle3DUV(vbuffer, uvbuffer, vertices, uv) {
 
   gl.drawArrays(gl.TRIANGLES, 0, n);
 }
+
+function drawTriangle3DUVNormal(vbuffer, uvbuffer, nbuffer, vertices, uv, normals) {
+  var n = 3; // The number of vertices
+
+  // Bind the buffer object to target
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+  
+  gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(a_Position);
+
+  // uv coords
+  gl.bindBuffer(gl.ARRAY_BUFFER, uvbuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uv), gl.DYNAMIC_DRAW);
+  
+  gl.vertexAttribPointer(a_UV, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(a_UV);
+
+  // normals
+  gl.bindBuffer(gl.ARRAY_BUFFER, nbuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.DYNAMIC_DRAW);
+  // console.log(normals);
+  // console.log(nbuffer);
+  gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(a_Normal);
+
+  gl.drawArrays(gl.TRIANGLES, 0, n);
+
+  // g_vertexBuffer
+}

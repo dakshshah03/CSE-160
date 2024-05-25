@@ -6,10 +6,15 @@
 
 // Vertex shader program
 var VSHADER_SOURCE = `
+  precision mediump float;
+  
   attribute vec4 a_Position;
   attribute vec2 a_UV;
-
+  attribute vec3 a_Normal;
+  
   varying vec2 v_UV;
+  varying vec3 v_Normal;
+
 
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
@@ -19,6 +24,7 @@ var VSHADER_SOURCE = `
   void main() {
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
+    v_Normal = a_Normal;
   }`
 
 // Fragment shader program
@@ -26,6 +32,8 @@ var FSHADER_SOURCE = `
   precision mediump float;
 
   varying vec2 v_UV;
+  varying vec3 v_Normal;
+
   uniform vec4 u_FragColor;
 
   uniform sampler2D u_Sampler0;
@@ -39,7 +47,9 @@ var FSHADER_SOURCE = `
   uniform float u_texColorWeight;
 
   void main() {
-    if(u_textureOption == 0) {  
+    if(u_textureOption == -1) {
+      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
+    } else if(u_textureOption == 0) {  
       gl_FragColor = u_FragColor;
     } else if(u_textureOption == 1) {
       gl_FragColor = vec4(v_UV, 1.0, 1.0);
@@ -71,6 +81,7 @@ let canvas;
 let gl;
 let a_Position;
 let a_UV;
+let a_Normal;
 let u_FragColor;
 let u_Size;
 let u_ModelMatrix;
@@ -95,6 +106,7 @@ let g_cameraAngleX = 0;
 let g_cameraAngleY = 0;
 // let g_cameraAngleZ = 0;
 let g_animationActive = true;
+let g_normalOn = false;
 
 //body control angles
 var g_headAngle = [0.0, 0.0, 0.0];
@@ -146,6 +158,12 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
+  if(!a_Normal) {
+    console.log('Failed to get the storage location of a_Normal');
+    return;
+  }
+
   // Get the storage location of u_FragColor
   u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
   if (!u_FragColor) {
@@ -177,11 +195,7 @@ function connectVariablesToGLSL() {
     return;
   }
 
-  // u_texColorWeight = gl.getUniformLocation(gl.program, 'u_texColorWeight');
-  // if(!u_texColorWeight) {
-  //   console.log('Failed to get the storage location of u_texColorWeight');
-  //   return;
-  // }
+ 
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if(!u_Sampler0) {
@@ -796,8 +810,9 @@ function renderAllShapes() {
 
   let sky = new Cube();
   // sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
-  sky.textureOption = [0,0,0,0,0,0];
+  sky.textureOption =  [-1, -1, -1, -1, -1, -1];
   sky.color = [0.25, 0.25, 0.5, 1];
+  // if(g_normalOn) {sky.textureNum = [-1, -1, -1, -1, -1, -1];};
   sky.matrix.translate(0, -1.2, 0);
   sky.matrix.scale(8, 8, 8);
   sky.matrix.translate(-0.5, 0, -0.5);
