@@ -39,6 +39,9 @@ var FSHADER_SOURCE = `
 
   uniform float u_ambientLevel;
   uniform float u_specularCoefficient;
+  uniform vec3 u_diffuseColor;
+  uniform vec3 u_specularColor;
+  uniform vec3 u_ambientColor;
 
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
@@ -62,8 +65,6 @@ var FSHADER_SOURCE = `
 
   uniform vec3 u_lightPos;
   varying vec4 v_VertPos;
-  uniform vec3 u_diffuseColor;
-  // uniform vec3 u_specularColor;
 
   void main() {
     if(u_textureOption == -1 || u_normalOn) {
@@ -101,10 +102,10 @@ var FSHADER_SOURCE = `
     vec3 E = normalize(u_cameraPos-vec3(v_VertPos));
 
     // specular
-    float specular = pow(max(dot(E, R), 0.0), u_specularCoefficient);
+    vec3 specular = u_specularColor * pow(max(dot(E, R), 0.0), u_specularCoefficient);
 
-    vec3 diffuse = vec3(gl_FragColor) * vec3(u_diffuseColor) * nDotL * 0.5;
-    vec3 ambient = vec3(gl_FragColor) * u_ambientLevel;
+    vec3 diffuse = vec3(u_diffuseColor) * vec3(gl_FragColor) * nDotL * 0.5;
+    vec3 ambient = vec3(u_ambientColor) * vec3(gl_FragColor) * u_ambientLevel;
 
 
     float spotFactor;
@@ -154,6 +155,7 @@ let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 let u_textureSegment;
 let camera;
+
 let u_lightPos;
 let u_normalOn;
 let u_ambientLevel;
@@ -161,6 +163,7 @@ let u_specularCoefficient;
 let u_cameraPos;
 let u_specularColor;
 let u_diffuseColor;
+let u_ambientColor;
 let u_lightOn;
 
 let u_spotlightOn;
@@ -189,8 +192,10 @@ let g_animationActive = true;
 let g_normalOn = false;
 let g_lightPos = [0,2,0];
 let g_lightOn = true;
-let g_specularColor = [1,1,1];
-let g_diffuseColor = [0.1,0,0];
+// let g_specularColor = [0.5,0.5,0.5];
+let g_specularColor = [0.5,0.5,0.5];
+let g_diffuseColor = [0.1,0.1,0.1];
+let g_ambientColor = [0.5,0.5,0.5];
 let g_ambientLevel = 0.65;
 let g_specularCoefficient = 30.0;
 
@@ -302,6 +307,22 @@ function connectVariablesToGLSL() {
   }
 
   u_specularCoefficient = gl.getUniformLocation(gl.program, 'u_specularCoefficient');
+  if(!u_specularCoefficient) {
+    console.log('Failed to get the storage location of u_specularCoefficient');
+    return;
+  }
+
+  u_specularColor = gl.getUniformLocation(gl.program, 'u_specularColor');
+  if(!u_specularColor) {
+    console.log('Failed to get the storage location of u_specularColor');
+    return;
+  }
+
+  u_ambientColor = gl.getUniformLocation(gl.program, 'u_ambientColor');
+  if(!u_ambientColor) {
+    console.log('Failed to get the storage location of u_ambientColor');
+    return;
+  }
 
   u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
   if(!u_ModelMatrix) {
@@ -410,6 +431,8 @@ function connectVariablesToGLSL() {
   gl.uniform1f(u_specularCoefficient, g_specularCoefficient);
   gl.uniform3fv(u_diffuseColor, g_diffuseColor);
   gl.uniform1f(u_lightOn, g_lightOn);
+  gl.uniform3fv(u_specularColor, g_specularColor);
+  gl.uniform3fv(u_ambientColor, g_ambientColor);
 
   gl.uniform1f(u_spotlightOn, g_spotlight.active);
   gl.uniform3fv(u_spotlightPosition, g_spotlight.position);
@@ -610,7 +633,9 @@ function addActionListeners() {
     // let z_slider = document.getElementById('cam-angle-z');
   let ambient_slider = document.getElementById('ambient-level');
   let specular_slider = document.getElementById('specular-level');
+  let specular_color = document.getElementById('specular-color');
   let diffuse_color = document.getElementById('diffuse-color');
+  let ambient_color = document.getElementById('ambient-color');
 
   ambient_slider.addEventListener('mousemove', function() {g_ambientLevel = this.value; gl.uniform1f(u_ambientLevel, g_ambientLevel); renderAllShapes();});
 
@@ -630,9 +655,38 @@ function addActionListeners() {
     
     g_diffuseColor = [r/255, g/255, b/255]; 
     gl.uniform3fv(u_diffuseColor, g_diffuseColor); 
-    renderAllShapes();});
+    renderAllShapes();}
+  );
   
+  specular_color.addEventListener('change', function() {
+    hex = this.value
+    hex = hex.replace(/^#/, '');
+    
+    // Parse the hexadecimal string into its RGB components
+    let bigint = parseInt(hex, 16);
+    let r = (bigint >> 16) & 255;
+    let g = (bigint >> 8) & 255;
+    let b = bigint & 255;
+    
+    g_specularColor = [r/255, g/255, b/255]; 
+    gl.uniform3fv(u_specularColor, g_specularColor);
+    renderAllShapes();}
+  );
+  
+  ambient_color.addEventListener('change', function() {
+    hex = this.value
+    hex = hex.replace(/^#/, '');
 
+    // Parse the hexadecimal string into its RGB components
+    let bigint = parseInt(hex, 16);
+    let r = (bigint >> 16) & 255;
+    let g = (bigint >> 8) & 255;
+    let b = bigint & 255;
+
+    g_ambientColor = [r/255, g/255, b/255];
+    gl.uniform3fv(u_ambientColor, g_ambientColor);
+    renderAllShapes();}
+  );
 
 
   x_light.addEventListener('mousemove', function() {g_lightPos[0] = this.value/100; renderAllShapes();});
