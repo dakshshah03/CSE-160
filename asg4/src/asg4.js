@@ -88,26 +88,30 @@ var FSHADER_SOURCE = `
     // } else if(r < 2.0) {
     //   gl_FragColor = vec4(0,1,0,1);
     // }
-    if(!u_normalOn || !u_lightOn) {
-
       // N dot L
-      vec3 L = normalize(lightVector);
-      vec3 N = normalize(v_Normal);
-      float nDotL = max(dot(N, L), 0.0);
+    vec3 L = normalize(lightVector);
+    vec3 N = normalize(v_Normal);
+    float nDotL = max(dot(N, L), 0.0);
 
-      // reflection
-      vec3 R = reflect(L, N);
+    // reflection
+    vec3 R = reflect(L, N);
 
-      // eye
-      vec3 E = normalize(u_cameraPos-vec3(v_VertPos));
+    // eye
+    vec3 E = normalize(u_cameraPos-vec3(v_VertPos));
 
-      // specular
-      float specular = pow(max(dot(E, R), 0.0), u_specularCoefficient);
+    // specular
+    float specular = pow(max(dot(E, R), 0.0), u_specularCoefficient);
 
-      vec3 diffuse = vec3(u_diffuseColor) * nDotL;
-      vec3 ambient = vec3(gl_FragColor) * u_ambientLevel;
-      gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
+    vec3 diffuse = vec3(gl_FragColor) * vec3(u_diffuseColor) * nDotL * 0.5;
+    vec3 ambient = vec3(gl_FragColor) * u_ambientLevel;
 
+    
+    if(u_lightOn) {
+      if(u_textureOption > 1) {
+        gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
+      } else {
+        gl_FragColor = vec4(diffuse + ambient, 1.0);
+      }
     }
   }`
 
@@ -140,6 +144,7 @@ let u_specularCoefficient;
 let u_cameraPos;
 let u_specularColor;
 let u_diffuseColor;
+let u_lightOn;
 // let world;
 // let u_texColorWeight;
 
@@ -162,8 +167,8 @@ let g_lightPos = [0,2,0];
 let g_lightOn = true;
 let g_specularColor = [1,1,1];
 let g_diffuseColor = [0.1,0,0];
-let g_ambientLevel = 0.3;
-let g_specularCoefficient = 10.0;
+let g_ambientLevel = 0.65;
+let g_specularCoefficient = 30.0;
 
 //body control angles
 var g_headAngle = [0.0, 0.0, 0.0];
@@ -252,6 +257,11 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
+  if(!u_lightOn) {
+    console.log('Failed to get the storage location of u_lightOn');
+    return;
+  }
   // u_specularColor = gl.getUniformLocation(gl.program, 'u_specularColor');
   // if(!u_specularColor) {
   //   console.log('Failed to get the storage location of u_specularColor');
@@ -342,13 +352,13 @@ function connectVariablesToGLSL() {
   gl.uniform1f(u_ambientLevel, g_ambientLevel);
   gl.uniform1f(u_specularCoefficient, g_specularCoefficient);
   gl.uniform3fv(u_diffuseColor, g_diffuseColor);
+  gl.uniform1f(u_lightOn, g_lightOn);
 
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ViewMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, x.elements);
   gl.uniform3fv(u_cameraPos, camera.eye.elements);
-
 }
 
 function initTextures() {
@@ -635,7 +645,7 @@ function renderAllShapes() {
   var start_time = performance.now();
 
   gl.uniform1i(u_normalOn, g_normalOn);
-
+  gl.uniform1f(u_lightOn, g_lightOn);
   // let projMat = new Matrix4();
   // projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
   // console.log(g_deltaX * 360);
@@ -662,8 +672,6 @@ function renderAllShapes() {
   // camera.viewMatrix.rotate(g_cameraAngleX, 1, 0, 0);
   // globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
-
-
 
   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -739,7 +747,8 @@ function renderAllShapes() {
 
     //animate light
     l_lightPos[0] = g_lightPos[0] + 2*Math.sin(g_seconds);
-    // l_lightPos[2] = g_lightPos[2] + 2*Math.cos(g_seconds);
+    l_lightPos[1] = g_lightPos[1] + 2*Math.cos(g_seconds);
+    l_lightPos[2] = g_lightPos[2] + 2*Math.cos(g_seconds);
   }
     
   // draw main body
