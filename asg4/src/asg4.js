@@ -46,12 +46,13 @@ var FSHADER_SOURCE = `
 
   uniform int u_textureOption;
   uniform float u_texColorWeight;
+  uniform bool u_normalOn;
 
   uniform vec3 u_lightPos;
   varying vec4 v_VertPos;
 
   void main() {
-    if(u_textureOption == -1) {
+    if(u_textureOption == -1 || u_normalOn) {
       gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
     } else if(u_textureOption == 0) {  
       gl_FragColor = u_FragColor;
@@ -79,12 +80,13 @@ var FSHADER_SOURCE = `
     // } else if(r < 2.0) {
     //   gl_FragColor = vec4(0,1,0,1);
     // }
-    vec3 L = normalize(lightVector);
-    vec3 N = normalize(v_Normal);
-    float nDotL = max(dot(N, L), 0.0);
-    gl_FragColor = gl_FragColor * (nDotL);
-    gl_FragColor.a = 1.0;
-
+    if(!u_normalOn) {
+      vec3 L = normalize(lightVector);
+      vec3 N = normalize(v_Normal);
+      float nDotL = max(dot(N, L), 0.0);
+      gl_FragColor = gl_FragColor * (nDotL);
+      gl_FragColor.a = 1.0;
+    }
   }`
 
 const SKY = 2;
@@ -110,6 +112,7 @@ let u_GlobalRotateMatrix;
 let u_textureSegment;
 let camera;
 let u_lightPos;
+let u_normalOn;
 // let world;
 // let u_texColorWeight;
 
@@ -127,8 +130,8 @@ let g_cameraAngleY = 0;
 // let g_cameraAngleZ = 0;
 let g_animationActive = true;
 
-let g_normalOn = true;
-let g_lightPos = [0,1,-2];
+let g_normalOn = false;
+let g_lightPos = [0,2,0];
 let g_lightOn = true;
 
 
@@ -144,8 +147,8 @@ var g_blLowerAngle = 40.0;
 var g_brLowerAngle = 40.0;
 var g_tailAngle = 0.0;
 
-// let g_deltaX = 0;
-// let g_deltaY = 0;
+let g_deltaX = 0;
+let g_deltaY = 0;
 
 function setUpWebGL() {
   // Retrieve <canvas> element
@@ -198,6 +201,12 @@ function connectVariablesToGLSL() {
   u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if(!u_ModelMatrix) {
     console.log('Failed to get the storage location of u_ModelMatrix');
+    return;
+  }
+
+  u_normalOn = gl.getUniformLocation(gl.program, 'u_normalOn');
+  if(!u_normalOn) {
+    console.log('Failed to get the storage location of u_normalOn');
     return;
   }
 
@@ -269,8 +278,8 @@ function connectVariablesToGLSL() {
 
   let x = new Matrix4();
   camera = new Camera();
-  camera.eye = new Vector3([0, 0, 3]);
-  camera.at = new Vector3([0, 0, -100]);
+  camera.eye = new Vector3([0, 1, -3]);
+  camera.at = new Vector3([0, 0, 100]);
   camera.up = new Vector3([0, 1, 0]);
 
   // world = new World();
@@ -530,6 +539,8 @@ function convertMouseToEventCoords(ev) {
 function renderAllShapes() {
   var start_time = performance.now();
 
+  gl.uniform1i(u_normalOn, g_normalOn);
+
   // let projMat = new Matrix4();
   // projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
   // console.log(g_deltaX * 360);
@@ -548,8 +559,8 @@ function renderAllShapes() {
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   let globalRotMat = new Matrix4();
-  globalRotMat.setRotate(20, 1, 0, 0);
-  globalRotMat.setRotate(180, 0, 1, 0);
+  // globalRotMat.setRotate(20, 1, 0, 0);
+  // globalRotMat.setRotate(180, 0, 1, 0);
   globalRotMat.rotate(g_cameraAngleX, 1, 0, 0);
   globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
   // globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
@@ -609,6 +620,8 @@ function renderAllShapes() {
   var distLowerMultiplier = 15;
   var distUpperMultiplier = 20;
   var neckMultiplier = 5;
+
+  let l_lightPos = [g_lightPos[0], g_lightPos[1], g_lightPos[2]];
   if(g_animationActive) {
     // front left leg animation
     l_flAngle = g_flAngle*1 + distUpperMultiplier * Math.sin(g_seconds*speedMultiplier);
@@ -628,8 +641,8 @@ function renderAllShapes() {
     l_tailAngle = g_tailAngle*1 + 10 * Math.sin(g_seconds*5);
 
     //animate light
-    g_lightPos[0] = 2*Math.sin(g_seconds);
-    // g_lightPos[2] = 2*Math.cos(g_seconds);
+    l_lightPos[0] = g_lightPos[0] + 2*Math.sin(g_seconds);
+    // l_lightPos[2] = g_lightPos[2] + 2*Math.cos(g_seconds);
   }
     
   // draw main body
@@ -847,11 +860,11 @@ function renderAllShapes() {
   // sky.render();
 
   if(g_lightOn) {
-    gl.uniform3f(u_lightPos, g_lightPos[0], g_lightPos[1], g_lightPos[2])
+    gl.uniform3f(u_lightPos, l_lightPos[0], l_lightPos[1], l_lightPos[2])
 
     let light = new Cube();
     light.color = [1, 1, 1, 1];
-    light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+    light.matrix.translate(l_lightPos[0], l_lightPos[1], l_lightPos[2]);
     light.matrix.scale(0.1, 0.1, 0.1);
     light.render();
   }
