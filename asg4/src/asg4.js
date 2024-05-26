@@ -807,10 +807,15 @@ function renderAllShapes() {
     legBR_3.render();
   }
 
+  let s = new Sphere();
+  s.color = [0.5, 0.5, 0.5, 1.0];
+  s.textureOption = 3;
+  s.matrix.translate(2, 0, 2);
+  s.render();
 
   let sky = new Cube();
   // sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
-  sky.textureOption =  [-1, -1, -1, -1, -1, -1];
+  sky.textureOption =  [-1, -1, -1, -1, -1, 2];
   sky.color = [0.25, 0.25, 0.5, 1];
   // if(g_normalOn) {sky.textureNum = [-1, -1, -1, -1, -1, -1];};
   sky.matrix.translate(0, -1.2, 0);
@@ -818,14 +823,14 @@ function renderAllShapes() {
   sky.matrix.translate(-0.5, 0, -0.5);
   sky.renderSkybox();
 
-  let floor = new Cube();
-  // floor.textureOption = [DIRT, DIRT, DIRT, DIRT, DIRT, DIRT];
-  floor.textureOption = [0, 0, 0, 0, 0, 0];
-  floor.color = [.5, .25, .25, 1];
-  floor.matrix.translate(0, -1.1, 0.0);
-  floor.matrix.scale(8, 0.1, 8);
-  floor.matrix.translate(-0.5, 0, -0.5);
-  floor.render();
+  // let floor = new Cube();
+  // // floor.textureOption = [DIRT, DIRT, DIRT, DIRT, DIRT, DIRT];
+  // floor.textureOption = [0, 0, 0, 0, 0, 0];
+  // floor.color = [.5, .25, .25, 1];
+  // floor.matrix.translate(0, -1.1, 0.0);
+  // floor.matrix.scale(8, 0.1, 8);
+  // floor.matrix.translate(-0.5, 0, -0.5);
+  // floor.render();
 
   let random_cube = new Cube();
   random_cube.color = [1, 0, 0, 1];
