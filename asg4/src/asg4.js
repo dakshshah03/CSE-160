@@ -37,6 +37,9 @@ var FSHADER_SOURCE = `
 
   uniform vec4 u_FragColor;
 
+  uniform float u_ambientLevel;
+  uniform float u_specularCoefficient;
+
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
   uniform sampler2D u_Sampler2;
@@ -47,6 +50,9 @@ var FSHADER_SOURCE = `
   uniform int u_textureOption;
   uniform float u_texColorWeight;
   uniform bool u_normalOn;
+  uniform bool u_lightOn;
+
+  uniform vec3 u_cameraPos;
 
   uniform vec3 u_lightPos;
   varying vec4 v_VertPos;
@@ -80,12 +86,26 @@ var FSHADER_SOURCE = `
     // } else if(r < 2.0) {
     //   gl_FragColor = vec4(0,1,0,1);
     // }
-    if(!u_normalOn) {
+    if(!u_normalOn || !u_lightOn) {
+
+      // N dot L
       vec3 L = normalize(lightVector);
       vec3 N = normalize(v_Normal);
       float nDotL = max(dot(N, L), 0.0);
-      gl_FragColor = gl_FragColor * (nDotL);
-      gl_FragColor.a = 1.0;
+
+      // reflection
+      vec3 R = reflect(L, N);
+
+      // eye
+      vec3 E = normalize(u_cameraPos-vec3(v_VertPos));
+
+      // specular
+      float specular = pow(max(dot(E, R), 0.0), u_specularCoefficient);
+
+      vec3 diffuse = vec3(gl_FragColor) * nDotL;
+      vec3 ambient = vec3(gl_FragColor) * u_ambientLevel;
+      gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
+
     }
   }`
 
@@ -113,6 +133,9 @@ let u_textureSegment;
 let camera;
 let u_lightPos;
 let u_normalOn;
+let u_ambientLevel;
+let u_specularCoefficient;
+let u_cameraPos;
 // let world;
 // let u_texColorWeight;
 
@@ -133,7 +156,9 @@ let g_animationActive = true;
 let g_normalOn = false;
 let g_lightPos = [0,2,0];
 let g_lightOn = true;
-
+let g_lightColor = [1,1,1,1];
+let g_ambientLevel = 0.3;
+let g_specularCoefficient = 10.0;
 
 //body control angles
 var g_headAngle = [0.0, 0.0, 0.0];
@@ -210,6 +235,14 @@ function connectVariablesToGLSL() {
     return;
   }
 
+  u_ambientLevel = gl.getUniformLocation(gl.program, 'u_ambientLevel');
+  // if(!u_ambientLevel) {
+  //   console.log('Failed to get the storage location of u_ambientLevel');
+  //   return;
+  // }
+
+  u_specularCoefficient = gl.getUniformLocation(gl.program, 'u_specularCoefficient');
+
   u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
   if(!u_ModelMatrix) {
     console.log('Failed to get the storage location of u_GlobalRotateMatrix');
@@ -270,6 +303,12 @@ function connectVariablesToGLSL() {
     return false;
   }
 
+  u_cameraPos = gl.getUniformLocation(gl.program, 'u_cameraPos');
+  if(!u_cameraPos) {
+    console.log('Failed to create camera position object');
+    return false;
+  }
+
   u_textureOption = gl.getUniformLocation(gl.program, 'u_textureOption');
   if(!u_textureOption) {
     console.log('Failed to create texture option object');
@@ -283,11 +322,14 @@ function connectVariablesToGLSL() {
   camera.up = new Vector3([0, 1, 0]);
 
   // world = new World();
+  gl.uniform1f(u_ambientLevel, g_ambientLevel);
+  gl.uniform1f(u_specularCoefficient, g_specularCoefficient);
   
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ViewMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, x.elements);
+  gl.uniform3fv(u_cameraPos, camera.eye.elements);
 
 }
 
@@ -469,52 +511,73 @@ function rotateCamera(ev) {
 
 
 function addActionListeners() {
-  let x_slider = document.getElementById('cam-angle-x');
-  let y_slider = document.getElementById('cam-angle-y');
+  // let x_slider = document.getElementById('cam-angle-x');
+  // let y_slider = document.getElementById('cam-angle-y');
   let x_light = document.getElementById('light-x');
   let y_light = document.getElementById('light-y');
   let z_light = document.getElementById('light-z');
     // let z_slider = document.getElementById('cam-angle-z');
+  let ambient_slider = document.getElementById('ambient-level');
+  let specular_slider = document.getElementById('specular-level');
+  let color_picker = document.getElementById('color-picker');
+
+  ambient_slider.addEventListener('mousemove', function() {g_ambientLevel = this.value; gl.uniform1f(u_ambientLevel, g_ambientLevel); renderAllShapes();});
+
+  specular_slider.addEventListener('mousemove', function() {g_specularCoefficient = this.value; gl.uniform1f(u_specularCoefficient, g_specularCoefficient); renderAllShapes();});
 
 
-  x_slider.addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
-  y_slider.addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
+  // color_picker.addEventListener('change', function() {}
+
+
 
   x_light.addEventListener('mousemove', function() {g_lightPos[0] = this.value/100; renderAllShapes();});
   y_light.addEventListener('mousemove', function() {g_lightPos[1] = this.value/100; renderAllShapes();});
   z_light.addEventListener('mousemove', function() {g_lightPos[2] = this.value/100; renderAllShapes();});
 
-  canvas.onmousemove = function(ev) {
-    let [x, y] = convertMouseToEventCoords(ev);
-    if(ev.buttons == 1) {
-      g_cameraAngleY += (x - g_deltaX) * 120;
-      g_cameraAngleX += (y - g_deltaY) * 120;
-      g_deltaX = x;
-      g_deltaY = y;
-    } else {
-      g_deltaX = x;
-      g_deltaY = y;
+  canvas.onclick = function(ev) {
+    if(!document.pointerLockElement) {
+      canvas.requestPointerLock();
     }
-    x_slider.value = g_cameraAngleX;
-    y_slider.value = g_cameraAngleY;
   }
+  document.addEventListener('pointerlockchange', function(ev) {
+    if(document.pointerLockElement === canvas) {
+      canvas.onmousemove = (ev) => rotateCamera(ev);
+    } else {
+      canvas.onmousemove = null;
+    }
+  });
+
+  // canvas.onmousemove = function(ev) {
+  //   let [x, y] = convertMouseToEventCoords(ev);
+  //   if(ev.buttons == 1) {
+  //     g_cameraAngleY += (x - g_deltaX) * 120;
+  //     g_cameraAngleX += (y - g_deltaY) * 120;
+  //     g_deltaX = x;
+  //     g_deltaY = y;
+  //   } else {
+  //     g_deltaX = x;
+  //     g_deltaY = y;
+  //   }
+  //   x_slider.value = g_cameraAngleX;
+  //   y_slider.value = g_cameraAngleY;
+  // }
 }
 
 
 function keydown(ev) {
   // console.log(camera.at.elements);
-  // if(ev.keyCode == 39 || ev.keyCode == 68) {
-  //   camera.moveRight();
-  // }
-  // if(ev.keyCode == 37 || ev.keyCode == 65) {
-  //   camera.moveLeft();
-  // }
-  // if(ev.keyCode == 38 || ev.keyCode == 87) {
-  //   camera.moveForward();
-  // }
-  // if(ev.keyCode == 40 || ev.keyCode == 83) {
-  //   camera.moveBackward();
-  // }
+  if(ev.keyCode == 39 || ev.keyCode == 68) {
+    camera.moveRight();
+  }
+  if(ev.keyCode == 37 || ev.keyCode == 65) {
+    camera.moveLeft();
+  }
+  if(ev.keyCode == 38 || ev.keyCode == 87) {
+    camera.moveForward();
+  }
+  if(ev.keyCode == 40 || ev.keyCode == 83) {
+    camera.moveBackward();
+  }
   if(ev.keyCode == 81) {
     camera.panLeft(5);
   }
@@ -556,13 +619,15 @@ function renderAllShapes() {
     camera.at.elements[0], camera.at.elements[1], camera.at.elements[2],
     camera.up.elements[0], camera.up.elements[1], camera.up.elements[2]
 );
+  gl.uniform3fv(u_cameraPos, camera.eye.elements);
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   let globalRotMat = new Matrix4();
   // globalRotMat.setRotate(20, 1, 0, 0);
   // globalRotMat.setRotate(180, 0, 1, 0);
-  globalRotMat.rotate(g_cameraAngleX, 1, 0, 0);
-  globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
+  // globalRotMat.rotate(g_cameraAngleX, 1, 0, 0);
+  // globalRotMat.rotate(g_cameraAngleY, 0, 1, 0);
+  // camera.viewMatrix.rotate(g_cameraAngleX, 1, 0, 0);
   // globalRotMat.rotate(g_cameraAngleZ, 0, 0, 1);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
@@ -848,11 +913,8 @@ function renderAllShapes() {
 
   let sky = new Cube();
   // sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
-  sky.textureOption =  [2, 2, 2, 2, 2, 2];
+  sky.textureOption =  [0, 0, 0, 0, 0, 5];
   sky.color = [0.25, 0.25, 0.5, 1];
-  // if(g_normalOn) {sky.textureOption = [-1, -1, -1, -1, -1, 2];};
-  sky.textureOption = [1, 1, 1, 1, 1,1];
-  // if(g_normalOn) {sky.textureNum = [-1, -1, -1, -1, -1, -1];};
   sky.matrix.translate(0, -1, 0);
   sky.matrix.scale(8, 8, 8);
   sky.matrix.translate(-0.5, 0, -0.5);
@@ -863,7 +925,7 @@ function renderAllShapes() {
     gl.uniform3f(u_lightPos, l_lightPos[0], l_lightPos[1], l_lightPos[2])
 
     let light = new Cube();
-    light.color = [1, 1, 1, 1];
+    light.color = g_lightColor;
     light.matrix.translate(l_lightPos[0], l_lightPos[1], l_lightPos[2]);
     light.matrix.scale(0.1, 0.1, 0.1);
     light.render();

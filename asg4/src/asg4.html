@@ -25,11 +25,10 @@ Notes to the grader:
       .slider {
         display: block;
         /*min and max changes size of slider?*/
-        height: 30px;
-        min-width: 260px;
-        max-width: 640px;
+        height: 20px;
+        min-width: 300px;
+        max-width: 400px;
         margin: auto;
-        margin-top: 20px;
         position: relative;
       }
     </style>
@@ -41,12 +40,6 @@ Notes to the grader:
     dakshah@ucsc.edu
     <br><br>
     Notes to Grader: <br>
-    - Left click to place blocks (Note: this is finicky so it may take a bit to get the block to place correctly) <br>
-    - Right click to remove blocks (Note: this is finicky so it may take a bit to get the block to remove correctly) <br>
-    - WASD and Arrow keys can be used for movement (Note: Don't hold the keys or it will lag, repeatedly tap the keys for movement)<br>
-    - Click on the canvas to gain mouse controls <br>
-    - Objective: Build Housing in College 11 for the "Deer"<br>
-
     <br>
     <div class="segment">
       <div class="segment" id="display-container">
@@ -58,17 +51,21 @@ Notes to the grader:
       <!-- head, body, and camera controls supercontainer -->
       <div class="slider-cont">
         <div class="slider-cont" id="camera-angle-segment">
-          Camera Angle 
+          <input type="button" value="Normals On" onclick="g_normalOn = true">
+          <input type="button" value="Normals Off" onclick="g_normalOn = false">
+          <br>
+          <br>
+          <input type="button" value="Light On" onclick="g_lightOn = true">
+          <input type="button" value="Light Off" onclick="g_lightOn = false">
+          <br>
+          <br>
+          <!-- Camera Angle 
           <br>
           X:<input type="range" min="-360" max="360" value="0" class="slider" id="cam-angle-x">
           <br>
           Y:<input type="range" min="-360" max="360" value="0" class="slider" id="cam-angle-y">
           <br>
-          <br>
-          <input type="button" value="Normals On" onclick="g_normalOn = true">
-          <input type="button" value="Normals Off" onclick="g_normalOn = false">
-          <br>
-          <br>
+          <br> -->
           Light position
           <br>
           X: <input type="range" min="-400" max="400" value="0" class="slider" id="light-x">
@@ -76,12 +73,14 @@ Notes to the grader:
           Y: <input type="range" min="-100" max="700" value="200" class="slider" id="light-y">
           <br>
           Z: <input type="range" min="-400" max="400" value="0" class="slider" id="light-z">
-
           <br>
           <br>
+          Ambient Level: <input type="range" min="0" max="1" value="0.3" step="0.1" class="slider" id="ambient-level">
+          <br>
+          Specular Coefficient: <input type="range" min="0" max="100" value="10.0" step="1" class="slider" id="specular-level">
+          <br>
+          Color: <input type="color" id="color">
 
-          <input type="button" value="Light On" onclick="g_lightOn = true">
-          <input type="button" value="Light Off" onclick="g_lightOn = false">
 
           <!-- <br> -->
            <!-- Z:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-z">  -->
