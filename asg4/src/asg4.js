@@ -629,7 +629,7 @@ function renderAllShapes() {
 
     //animate light
     g_lightPos[0] = 2*Math.sin(g_seconds);
-    g_lightPos[2] = 2*Math.cos(g_seconds);
+    // g_lightPos[2] = 2*Math.cos(g_seconds);
   }
     
   // draw main body
@@ -862,6 +862,7 @@ function renderAllShapes() {
   random_cube2.matrix.translate(-2, -1, -1);
   random_cube2.matrix.scale(0.75, 0.75, 0.75);
   random_cube2.render();
+  // random_cube2.renderSkybox();
 
   // let body = new Cube();
   // body.color = [1.0, 0, 0, 1.0];
