@@ -55,17 +55,14 @@ Notes to the grader:
           <input type="button" value="Normals Off" onclick="g_normalOn = false">
           <br>
           <br>
-          <input type="button" value="Light On" onclick="g_lightOn = true">
-          <input type="button" value="Light Off" onclick="g_lightOn = false">
+          <input type="button" value="All Lights On" onclick="g_lightOn = true">
+          <input type="button" value="All Lights Off" onclick="g_lightOn = false">
           <br>
           <br>
-          <!-- Camera Angle 
+          <input type="button" value="Spotlight On" onclick="g_spotlight.active = true">
+          <input type="button" value="Spotlight Off" onclick="g_spotlight.active = false">
           <br>
-          X:<input type="range" min="-360" max="360" value="0" class="slider" id="cam-angle-x">
           <br>
-          Y:<input type="range" min="-360" max="360" value="0" class="slider" id="cam-angle-y">
-          <br>
-          <br> -->
           Light position
           <br>
           X: <input type="range" min="-400" max="400" value="0" class="slider" id="light-x">
@@ -79,7 +76,7 @@ Notes to the grader:
           <br>
           Specular Coefficient: <input type="range" min="0" max="100" value="30.0" step="1" class="slider" id="specular-level">
           <!-- <br> -->
-          <!-- Specular Color: <input type="color" id="specular-color"> -->
+          Specular Color: <input type="color" id="specular-color">
           <br>
           Diffuse Color: <input type="color" id="diffuse-color">
 

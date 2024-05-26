@@ -52,6 +52,12 @@ var FSHADER_SOURCE = `
   uniform bool u_normalOn;
   uniform bool u_lightOn;
 
+  uniform bool u_spotlightOn;
+  uniform vec3 u_spotlightPosition;
+  uniform vec3 u_spotlightDirection;
+  uniform float u_spotlightCutoff;
+  uniform float u_spotlightExponent;
+
   uniform vec3 u_cameraPos;
 
   uniform vec3 u_lightPos;
@@ -82,12 +88,7 @@ var FSHADER_SOURCE = `
 
     vec3 lightVector = vec3(v_VertPos) - u_lightPos;
     float r= length(lightVector);
-
-    // if(r < 1.0) {
-    //   gl_FragColor = vec4(1,0,0,1);
-    // } else if(r < 2.0) {
-    //   gl_FragColor = vec4(0,1,0,1);
-    // }
+    
       // N dot L
     vec3 L = normalize(lightVector);
     vec3 N = normalize(v_Normal);
@@ -105,15 +106,31 @@ var FSHADER_SOURCE = `
     vec3 diffuse = vec3(gl_FragColor) * vec3(u_diffuseColor) * nDotL * 0.5;
     vec3 ambient = vec3(gl_FragColor) * u_ambientLevel;
 
-    
+
+    float spotFactor;
+    if(u_spotlightOn) {
+      vec3 L_spot = normalize(vec3(v_VertPos) - u_spotlightPosition);
+      vec3 D = normalize(vec3(u_spotlightDirection));
+      float angle = dot(L_spot, D);
+      if(angle > u_spotlightCutoff) {
+        spotFactor = pow(angle, u_spotlightExponent);
+        // spotFactor = 1.0;
+      } else {
+        spotFactor = 0.3;
+      }
+      // gl_FragColor = vec4(spotFactor * (specular + diffuse + ambient), 1.0);
+    } else {
+      spotFactor = 1.0;
+    }
+
     if(u_lightOn) {
-      if(u_textureOption > 1) {
-        gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
+      if(u_textureOption > 1 || u_textureOption == 0) {
+        gl_FragColor = vec4(spotFactor * (specular + diffuse + ambient), 1.0);
       } else {
         gl_FragColor = vec4(diffuse + ambient, 1.0);
       }
     }
-  }`
+  }`;
 
 const SKY = 2;
 const GRASS_BOTTOM = 3;
@@ -145,6 +162,13 @@ let u_cameraPos;
 let u_specularColor;
 let u_diffuseColor;
 let u_lightOn;
+
+let u_spotlightOn;
+let u_spotlightPosition;
+let u_spotlightDirection;
+let u_spotlightCutoff;
+let u_spotlightExponent;
+
 // let world;
 // let u_texColorWeight;
 
@@ -169,6 +193,14 @@ let g_specularColor = [1,1,1];
 let g_diffuseColor = [0.1,0,0];
 let g_ambientLevel = 0.65;
 let g_specularCoefficient = 30.0;
+
+let g_spotlight = {
+  active: true,
+  position: [0, 3, 0],
+  direction: [0, -1, 0],
+  cutoff: 0.8,
+  exponent: 2
+}
 
 //body control angles
 var g_headAngle = [0.0, 0.0, 0.0];
@@ -262,11 +294,12 @@ function connectVariablesToGLSL() {
     console.log('Failed to get the storage location of u_lightOn');
     return;
   }
-  // u_specularColor = gl.getUniformLocation(gl.program, 'u_specularColor');
-  // if(!u_specularColor) {
-  //   console.log('Failed to get the storage location of u_specularColor');
-  //   return;
-  // }
+
+  u_spotlightOn = gl.getUniformLocation(gl.program, 'u_spotlightOn');
+  if(!u_spotlightOn) {
+    console.log('Failed to get the storage location of u_spotlightOn');
+    return;
+  }
 
   u_specularCoefficient = gl.getUniformLocation(gl.program, 'u_specularCoefficient');
 
@@ -293,6 +326,30 @@ function connectVariablesToGLSL() {
     console.log('Failed to get the storage location of u_lightPos');
     return;
   } 
+
+  u_spotlightPosition = gl.getUniformLocation(gl.program, 'u_spotlightPosition');
+  if(!u_spotlightPosition) {
+    console.log('Failed to get the storage location of u_spotlightPosition');
+    return;
+  }
+
+  u_spotlightDirection = gl.getUniformLocation(gl.program, 'u_spotlightDirection');
+  if(!u_spotlightDirection) {
+    console.log('Failed to get the storage location of u_spotlightDirection');
+    return;
+  }
+
+  u_spotlightCutoff = gl.getUniformLocation(gl.program, 'u_spotlightCutoff');
+  if(!u_spotlightCutoff) {
+    console.log('Failed to get the storage location of u_spotlightCutoff');
+    return;
+  }
+
+  u_spotlightExponent = gl.getUniformLocation(gl.program, 'u_spotlightExponent');
+  if(!u_spotlightExponent) {
+    console.log('Failed to get the storage location of u_spotlightExponent');
+    return;
+  }
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if(!u_Sampler0) {
@@ -353,6 +410,12 @@ function connectVariablesToGLSL() {
   gl.uniform1f(u_specularCoefficient, g_specularCoefficient);
   gl.uniform3fv(u_diffuseColor, g_diffuseColor);
   gl.uniform1f(u_lightOn, g_lightOn);
+
+  gl.uniform1f(u_spotlightOn, g_spotlight.active);
+  gl.uniform3fv(u_spotlightPosition, g_spotlight.position);
+  gl.uniform3fv(u_spotlightDirection, g_spotlight.direction);
+  gl.uniform1f(u_spotlightCutoff, g_spotlight.cutoff);
+  gl.uniform1f(u_spotlightExponent, g_spotlight.exponent);
 
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
@@ -646,6 +709,7 @@ function renderAllShapes() {
 
   gl.uniform1i(u_normalOn, g_normalOn);
   gl.uniform1f(u_lightOn, g_lightOn);
+  gl.uniform1f(u_spotlightOn, g_spotlight.active);
   // let projMat = new Matrix4();
   // projMat.setPerspective(90, canvas.width/canvas.height, .05, 1000);
   // console.log(g_deltaX * 360);
@@ -974,7 +1038,7 @@ function renderAllShapes() {
 
   let random_cube2 = new Cube();
   random_cube2.color = [1, 0, 0.5, 1];
-  random_cube2.textureOption = [1, 1, 1, 1,1,1];
+  random_cube2.textureOption = [0, 0, 0, 0,0,0];
   random_cube2.matrix.translate(-2, -1, -1);
   random_cube2.matrix.scale(0.75, 0.75, 0.75);
   random_cube2.render();
