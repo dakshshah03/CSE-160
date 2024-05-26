@@ -56,6 +56,8 @@ var FSHADER_SOURCE = `
 
   uniform vec3 u_lightPos;
   varying vec4 v_VertPos;
+  uniform vec3 u_diffuseColor;
+  // uniform vec3 u_specularColor;
 
   void main() {
     if(u_textureOption == -1 || u_normalOn) {
@@ -102,7 +104,7 @@ var FSHADER_SOURCE = `
       // specular
       float specular = pow(max(dot(E, R), 0.0), u_specularCoefficient);
 
-      vec3 diffuse = vec3(gl_FragColor) * nDotL;
+      vec3 diffuse = vec3(u_diffuseColor) * nDotL;
       vec3 ambient = vec3(gl_FragColor) * u_ambientLevel;
       gl_FragColor = vec4(specular + diffuse + ambient, 1.0);
 
@@ -136,6 +138,8 @@ let u_normalOn;
 let u_ambientLevel;
 let u_specularCoefficient;
 let u_cameraPos;
+let u_specularColor;
+let u_diffuseColor;
 // let world;
 // let u_texColorWeight;
 
@@ -156,7 +160,8 @@ let g_animationActive = true;
 let g_normalOn = false;
 let g_lightPos = [0,2,0];
 let g_lightOn = true;
-let g_lightColor = [1,1,1,1];
+let g_specularColor = [1,1,1];
+let g_diffuseColor = [0.1,0,0];
 let g_ambientLevel = 0.3;
 let g_specularCoefficient = 10.0;
 
@@ -236,8 +241,20 @@ function connectVariablesToGLSL() {
   }
 
   u_ambientLevel = gl.getUniformLocation(gl.program, 'u_ambientLevel');
-  // if(!u_ambientLevel) {
-  //   console.log('Failed to get the storage location of u_ambientLevel');
+  if(!u_ambientLevel) {
+    console.log('Failed to get the storage location of u_ambientLevel');
+    return;
+  }
+
+  u_diffuseColor = gl.getUniformLocation(gl.program, 'u_diffuseColor');
+  if(!u_diffuseColor) {
+    console.log('Failed to get the storage location of u_diffuseColor');
+    return;
+  }
+
+  // u_specularColor = gl.getUniformLocation(gl.program, 'u_specularColor');
+  // if(!u_specularColor) {
+  //   console.log('Failed to get the storage location of u_specularColor');
   //   return;
   // }
 
@@ -324,7 +341,8 @@ function connectVariablesToGLSL() {
   // world = new World();
   gl.uniform1f(u_ambientLevel, g_ambientLevel);
   gl.uniform1f(u_specularCoefficient, g_specularCoefficient);
-  
+  gl.uniform3fv(u_diffuseColor, g_diffuseColor);
+
   gl.uniformMatrix4fv(u_ModelMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, x.elements);
   gl.uniformMatrix4fv(u_ViewMatrix, false, x.elements);
@@ -519,7 +537,7 @@ function addActionListeners() {
     // let z_slider = document.getElementById('cam-angle-z');
   let ambient_slider = document.getElementById('ambient-level');
   let specular_slider = document.getElementById('specular-level');
-  let color_picker = document.getElementById('color-picker');
+  let diffuse_color = document.getElementById('diffuse-color');
 
   ambient_slider.addEventListener('mousemove', function() {g_ambientLevel = this.value; gl.uniform1f(u_ambientLevel, g_ambientLevel); renderAllShapes();});
 
@@ -527,6 +545,20 @@ function addActionListeners() {
 
 
   // color_picker.addEventListener('change', function() {}
+  diffuse_color.addEventListener('change', function() {
+    hex = this.value
+    hex = hex.replace(/^#/, '');
+    
+    // Parse the hexadecimal string into its RGB components
+    let bigint = parseInt(hex, 16);
+    let r = (bigint >> 16) & 255;
+    let g = (bigint >> 8) & 255;
+    let b = bigint & 255;
+    
+    g_diffuseColor = [r/255, g/255, b/255]; 
+    gl.uniform3fv(u_diffuseColor, g_diffuseColor); 
+    renderAllShapes();});
+  
 
 
 
@@ -914,7 +946,7 @@ function renderAllShapes() {
   let sky = new Cube();
   // sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
   sky.textureOption =  [0, 0, 0, 0, 0, 5];
-  sky.color = [0.25, 0.25, 0.5, 1];
+  sky.color = [1, 1, 1, 1];
   sky.matrix.translate(0, -1, 0);
   sky.matrix.scale(8, 8, 8);
   sky.matrix.translate(-0.5, 0, -0.5);
@@ -925,7 +957,7 @@ function renderAllShapes() {
     gl.uniform3f(u_lightPos, l_lightPos[0], l_lightPos[1], l_lightPos[2])
 
     let light = new Cube();
-    light.color = g_lightColor;
+    light.color = [1, 1, 0, 1];
     light.matrix.translate(l_lightPos[0], l_lightPos[1], l_lightPos[2]);
     light.matrix.scale(0.1, 0.1, 0.1);
     light.render();
