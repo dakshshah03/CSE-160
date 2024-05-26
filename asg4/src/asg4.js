@@ -14,7 +14,7 @@ var VSHADER_SOURCE = `
   
   varying vec2 v_UV;
   varying vec3 v_Normal;
-
+  varying vec4 v_VertPos;
 
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
@@ -25,6 +25,7 @@ var VSHADER_SOURCE = `
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
     v_Normal = a_Normal;
+    v_VertPos = u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -46,6 +47,9 @@ var FSHADER_SOURCE = `
   uniform int u_textureOption;
   uniform float u_texColorWeight;
 
+  uniform vec3 u_lightPos;
+  varying vec4 v_VertPos;
+
   void main() {
     if(u_textureOption == -1) {
       gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
@@ -66,6 +70,21 @@ var FSHADER_SOURCE = `
     } else if(u_textureOption == 7) {
       gl_FragColor = texture2D(u_Sampler5, v_UV);
     }
+
+    vec3 lightVector = vec3(v_VertPos) - u_lightPos;
+    float r= length(lightVector);
+
+    // if(r < 1.0) {
+    //   gl_FragColor = vec4(1,0,0,1);
+    // } else if(r < 2.0) {
+    //   gl_FragColor = vec4(0,1,0,1);
+    // }
+    vec3 L = normalize(lightVector);
+    vec3 N = normalize(v_Normal);
+    float nDotL = max(dot(N, L), 0.0);
+    gl_FragColor = gl_FragColor * (nDotL);
+    gl_FragColor.a = 1.0;
+
   }`
 
 const SKY = 2;
@@ -90,6 +109,7 @@ let u_ViewMatrix;
 let u_GlobalRotateMatrix;
 let u_textureSegment;
 let camera;
+let u_lightPos;
 // let world;
 // let u_texColorWeight;
 
@@ -106,7 +126,11 @@ let g_cameraAngleX = 0;
 let g_cameraAngleY = 0;
 // let g_cameraAngleZ = 0;
 let g_animationActive = true;
-let g_normalOn = false;
+
+let g_normalOn = true;
+let g_lightPos = [0,1,-2];
+let g_lightOn = true;
+
 
 //body control angles
 var g_headAngle = [0.0, 0.0, 0.0];
@@ -195,7 +219,11 @@ function connectVariablesToGLSL() {
     return;
   }
 
- 
+  u_lightPos = gl.getUniformLocation(gl.program, 'u_lightPos');
+  if(!u_lightPos) {
+    console.log('Failed to get the storage location of u_lightPos');
+    return;
+  } 
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if(!u_Sampler0) {
@@ -430,34 +458,22 @@ function rotateCamera(ev) {
 }
 
 
+
 function addActionListeners() {
-  // mouse events
-  // canvas.onclick = function(ev) {
-  //   if(!document.pointerLockElement) {
-  //     canvas.requestPointerLock();
-  //   }
-  //   console.log(ev.button);
-  //   if(ev.button == 0) {
-  //     world.placeBlock();
-  //   } else if(ev.button == 2) {
-  //     world.removeBlock();
-  //   }
-  // }
-  // document.addEventListener('pointerlockchange', function(ev) {
-  //   if(document.pointerLockElement === canvas) {
-  //     canvas.onmousemove = (ev) => rotateCamera(ev);
-  //   } else {
-  //     canvas.onmousemove = null;
-  //   }
-  // });
-    let x_slider = document.getElementById('cam-angle-x');
-    let y_slider = document.getElementById('cam-angle-y');
+  let x_slider = document.getElementById('cam-angle-x');
+  let y_slider = document.getElementById('cam-angle-y');
+  let x_light = document.getElementById('light-x');
+  let y_light = document.getElementById('light-y');
+  let z_light = document.getElementById('light-z');
     // let z_slider = document.getElementById('cam-angle-z');
 
 
   x_slider.addEventListener('mousemove', function() {g_cameraAngleX = this.value; renderAllShapes();});
   y_slider.addEventListener('mousemove', function() {g_cameraAngleY = this.value; renderAllShapes();});
-  // z_slider.addEventListener('mousemove', function() {g_cameraAngleZ = this.value; renderAllShapes();});
+
+  x_light.addEventListener('mousemove', function() {g_lightPos[0] = this.value/100; renderAllShapes();});
+  y_light.addEventListener('mousemove', function() {g_lightPos[1] = this.value/100; renderAllShapes();});
+  z_light.addEventListener('mousemove', function() {g_lightPos[2] = this.value/100; renderAllShapes();});
 
   canvas.onmousemove = function(ev) {
     let [x, y] = convertMouseToEventCoords(ev);
@@ -610,6 +626,10 @@ function renderAllShapes() {
     l_neckAngle[0] = g_headAngle[0]*1 + neckMultiplier * Math.cos(g_seconds*5);
 
     l_tailAngle = g_tailAngle*1 + 10 * Math.sin(g_seconds*5);
+
+    //animate light
+    g_lightPos[0] = 2*Math.sin(g_seconds);
+    g_lightPos[2] = 2*Math.cos(g_seconds);
   }
     
   // draw main body
@@ -815,33 +835,30 @@ function renderAllShapes() {
 
   let sky = new Cube();
   // sky.textureOption = [SKY,SKY,SKY,SKY,SKY,0];
-  sky.textureOption =  [-1, -1, -1, -1, -1, 2];
+  sky.textureOption =  [2, 2, 2, 2, 2, 2];
   sky.color = [0.25, 0.25, 0.5, 1];
+  // if(g_normalOn) {sky.textureOption = [-1, -1, -1, -1, -1, 2];};
+  sky.textureOption = [1, 1, 1, 1, 1,1];
   // if(g_normalOn) {sky.textureNum = [-1, -1, -1, -1, -1, -1];};
-  sky.matrix.translate(0, -1.2, 0);
+  sky.matrix.translate(0, -1, 0);
   sky.matrix.scale(8, 8, 8);
   sky.matrix.translate(-0.5, 0, -0.5);
   sky.renderSkybox();
+  // sky.render();
 
-  // let floor = new Cube();
-  // // floor.textureOption = [DIRT, DIRT, DIRT, DIRT, DIRT, DIRT];
-  // floor.textureOption = [0, 0, 0, 0, 0, 0];
-  // floor.color = [.5, .25, .25, 1];
-  // floor.matrix.translate(0, -1.1, 0.0);
-  // floor.matrix.scale(8, 0.1, 8);
-  // floor.matrix.translate(-0.5, 0, -0.5);
-  // floor.render();
+  if(g_lightOn) {
+    gl.uniform3f(u_lightPos, g_lightPos[0], g_lightPos[1], g_lightPos[2])
 
-  let random_cube = new Cube();
-  random_cube.color = [1, 0, 0, 1];
-  random_cube.textureOption = [GRASS_SIDE, GRASS_SIDE, GRASS_SIDE, GRASS_SIDE, GRASS_TOP, GRASS_BOTTOM];
-  random_cube.matrix.translate(-0.75, -1, -1.25);
-  random_cube.matrix.scale(0.25, 0.25, 0.25);
-  // random_cube.render();
+    let light = new Cube();
+    light.color = [1, 1, 1, 1];
+    light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+    light.matrix.scale(0.1, 0.1, 0.1);
+    light.render();
+  }
 
   let random_cube2 = new Cube();
   random_cube2.color = [1, 0, 0.5, 1];
-  random_cube2.textureOption = 0;
+  random_cube2.textureOption = [1, 1, 1, 1,1,1];
   random_cube2.matrix.translate(-2, -1, -1);
   random_cube2.matrix.scale(0.75, 0.75, 0.75);
   random_cube2.render();
@@ -853,19 +870,9 @@ function renderAllShapes() {
   // body.render();
 
   var duration = performance.now() - start_time;
-  let x_coord = Math.floor((camera.at.elements[0] + 4) * 4);
-  let y_coord = Math.floor((camera.at.elements[1] + 1) * 4 - 3);
-  let z_coord = Math.floor((camera.at.elements[2] + 4) * 4);
-
-  let x_eye = Math.floor((camera.eye.elements[0] + 4) * 4);
-  let y_eye = Math.floor((camera.eye.elements[1] + 1) * 4 - 3);
-  let z_eye = Math.floor((camera.eye.elements[2] + 4) * 4);
 
 
   sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(1000/duration), 'performance-display');
-  // sendTextToHTML("Coordinates x: " + camera.eye.elements[0] + " y: " + camera.eye.elements[1] + " z: " + camera.eye.elements[2], 'camera-position');
-  // sendTextToHTML("Coordinates x:" + x_eye + " y: " + y_eye + " z: " + z_eye, 'camera-position');
-  // sendTextToHTML("Looking at x: " + x_coord + " y: " + y_coord + " z: " + z_coord, 'lookat-position');
 }
 
 function sendTextToHTML(txt, htmlID) {
@@ -879,6 +886,10 @@ function sendTextToHTML(txt, htmlID) {
 
 var g_startTime = performance.now()/1000.0;
 var g_seconds = performance.now()/1000.0 - g_startTime;
+
+function updateAnimation() {
+  
+}
 
 function tick() {
   // console.log(g_seconds);

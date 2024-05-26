@@ -63,6 +63,26 @@ Notes to the grader:
           X:<input type="range" min="-360" max="360" value="0" class="slider" id="cam-angle-x">
           <br>
           Y:<input type="range" min="-360" max="360" value="0" class="slider" id="cam-angle-y">
+          <br>
+          <br>
+          <input type="button" value="Normals On" onclick="g_normalOn = true">
+          <input type="button" value="Normals Off" onclick="g_normalOn = false">
+          <br>
+          <br>
+          Light position
+          <br>
+          X: <input type="range" min="-400" max="400" value="0" class="slider" id="light-x">
+          <br>
+          Y: <input type="range" min="-100" max="700" value="100" class="slider" id="light-y">
+          <br>
+          Z: <input type="range" min="-400" max="400" value="-200" class="slider" id="light-z">
+
+          <br>
+          <br>
+
+          <input type="button" value="Light On" onclick="g_lightOn = true">
+          <input type="button" value="Light Off" onclick="g_lightOn = false">
+
           <!-- <br> -->
            <!-- Z:<input type="range" min="-180" max="180" value="0" class="slider" id="cam-angle-z">  -->
         </div>
