@@ -59,7 +59,7 @@ function setUpScene() {
                 }
             });
             scene.add(root);
-            scene_items.push(root);
+            // scene_items.push(root);
         });
     });
 
@@ -95,19 +95,21 @@ function setUpScene() {
     scene.add(light);
 
 
-    color = 0x6EFFC1;
-    intensity = 2;
+    color = 0x2d6e7a;
+    intensity = 5;
     let light2 = new THREE.AmbientLight(color, intensity);
     scene.add(light2);
 
-    color = 0x255675;
+    color = 0x51ad8f;
     intensity = 2;
     let light3 = new THREE.DirectionalLight(color, intensity);
     light3.position.set(4, 10, 4);
     scene.add(light3);
 
+    // camera.position.set(-300, 500, -300);
     controls = new OrbitControls( camera, canvas );
 	controls.target.set(-90, 30, -142);
+    // controls.target.set(-500, 50, -500);
 	controls.update();
 }
 
@@ -195,17 +197,17 @@ function createTree(location) {
 
 function createObjects() {
     let sphere_geometry = new THREE.SphereGeometry(2, 30, 14);
-    let sphere_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/zigzag.jpg')});
-    let sph = new THREE.Mesh(sphere_geometry, sphere_material);
-    scene.add(sph);
-    sph.position.x = 5;
+    // let sphere_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/zigzag.jpg')});
+    // let sph = new THREE.Mesh(sphere_geometry, sphere_material);
+    // scene.add(sph);
+    // sph.position.x = 5;
 
 
 
     // creates an instance of all non-custom files
-    scene_items = [
-        sph,
-    ];
+    // scene_items = [
+    //     sph,
+    // ];
 
     createTree([12, 0, 0]);
     createTree([0, 0, 5]);
@@ -239,9 +241,9 @@ function createObjects() {
         objLoader.setMaterials(mtl);
         objLoader.load('./../textures/models/Lowpoly_Helicopter.obj', (root) => {
             root.scale.set(0.005, 0.005, 0.005);
-            root.position.set(-85, 18, -135);
+            root.position.set(-80, 18, -130);
             scene.add(root);
-            scene_items.push(root);
+            // scene_items.push(root);
         });
     });
 
@@ -255,11 +257,12 @@ function createObjects() {
     } );
 
     let lake = new THREE.Mesh(new THREE.BoxGeometry(160, 1, 160), reflectMaterial);
-    lake.position.x = -180;
-    lake.position.y = 3;
-    lake.position.z = -150;
+    lake.position.set(-180, 3, -150);
     scene.add(lake);
 
+    let lake2 = new THREE.Mesh(new THREE.BoxGeometry(250, 1, 350), reflectMaterial);
+    lake2.position.set(-375, -2.5, -250);
+    scene.add(lake2);
 
 
 }
@@ -274,7 +277,7 @@ function main() {
 
         let speed = 3;
         let rot = time * speed;
-        scene_items[0].rotation.y = rot;
+        // scene_items[0].rotation.y = rot;
         sky.material.uniforms["iTime"].value = time;
         
         cubeCamera.position.copy(camera.position);
