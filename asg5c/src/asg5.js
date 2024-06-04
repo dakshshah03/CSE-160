@@ -3,6 +3,7 @@ import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Sky } from "./sky.js";
+// import { Lake } from "./lake.js";
 
 
 let canvas;
@@ -10,12 +11,18 @@ let renderer;
 let scene;
 let camera;
 let loader;
-let cubeLoader
+let cubeLoader;
 let objLoader;
 let controls;
 let mtlloader;
 let scene_items;
 let sky;
+// let lake;
+// let mirrorCamera;
+let renderTarget;
+// let view = new THREE.Vector3;
+let cubeCamera, cubeRenderTarget;
+let reflectMaterial;
 
 function setUpScene() {
     canvas = document.querySelector('#c');
@@ -31,16 +38,11 @@ function setUpScene() {
     sky.scale.setScalar(1000);
     scene.add(sky);
 
-    
-    // scene.background = cubeLoader.load([
-    //     './../textures/sky/px.png',
-    //     './../textures/sky/nx.png',
-    //     './../textures/sky/py.png',
-    //     './../textures/sky/ny.png',
-    //     './../textures/sky/pz.png',
-    //     './../textures/sky/nz.png'
-    // ]);
-    // scene.background.colorSpace = THREE.SRGBColorSpace;
+    // lake = new Lake();
+    // lake.scale.setScalar(1000);
+    // // lake.position.y = 50.0;
+    // scene.add(lake);
+
 
     loader.load('./../textures/scenery/SM_DiffJPG2.jpg', (texture) => {
         // texture.preload();
@@ -63,18 +65,25 @@ function setUpScene() {
 
     renderer = new THREE.WebGLRenderer({antialias: true, canvas});
     renderer.setSize( window.innerWidth, window.innerHeight );
+
+    // renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight );
     // document.body.appendChild( renderer.domElement );
+    cubeRenderTarget =  new THREE.WebGLCubeRenderTarget( 512 ); 
+    cubeRenderTarget.texture.type = THREE.HalfFloatType;
+
+    cubeCamera = new THREE.CubeCamera( 1, 5000, cubeRenderTarget );
+
 
     let fov = 100;
     let aspect = 2;  // the canvas default
     let near = 0.1;
     let far = 2000; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    camera.position.z = 5;
-    camera.position.x = -4;
-    camera.position.y = 2;
-
-
+    // camera.position.z = -90;
+    // camera.position.x = 16;
+    // camera.position.y = -142;
+    camera.position.set(-85, 30, -155);
+    // camera.lookAt(-90, 16, -142);
     // headlights
     let color = 0xFFFFFF;
     let intensity = 5;
@@ -98,7 +107,7 @@ function setUpScene() {
     scene.add(light3);
 
     controls = new OrbitControls( camera, canvas );
-	controls.target.set( 0, 1, 0 );
+	controls.target.set(-90, 30, -142);
 	controls.update();
 }
 
@@ -185,53 +194,71 @@ function createTree(location) {
 }
 
 function createObjects() {
-    let cube_geometry_1 = new THREE.BoxGeometry(1, 1, 1);
-    // let cube_geometry_2 = new THREE.BoxGeometry(1, 1, 1);
-    let cube_texture_1 = ["./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp", "./../textures/Minecraft/dirt.webp"];
-
     let sphere_geometry = new THREE.SphereGeometry(2, 30, 14);
     let sphere_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/zigzag.jpg')});
     let sph = new THREE.Mesh(sphere_geometry, sphere_material);
     scene.add(sph);
     sph.position.x = 5;
-    // load sphere
 
-    // load torus geometry
-    // let torus_geometry_1 = new THREE.TorusGeometry(2, 0.1, 15, 50);
-    // let torus_material  = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/pattern.jpg')});
-    // torus_geometry_1.rotateX(Math.PI/6)
-    // let torus = new THREE.Mesh( torus_geometry_1, torus_material );
-    // scene.add(torus);
-    // let torus_texture_1 = ;
+
 
     // creates an instance of all non-custom files
     scene_items = [
-        // makeInstance(cube_geometry_1, cube_texture_1, [3, 0.5, 4]),
-        // makeInstance(cube_geometry_1, cube_texture_1, [3, 0.5, 5]),
-        // torus,
         sph,
-        // makeInstance(torus_geometry_1, './../textures/Minecraft/pattern.jpg', [-3, 4, 4]),
     ];
 
     createTree([12, 0, 0]);
     createTree([0, 0, 5]);
     createTree([40, 4, 30]);
-    createTree([60, 1, -50]);
+    createTree([60, -2, -50]);
     createTree([-65, 9, 102]);
     createTree([-90, 16, -142]);
-    createTree([-20, 1, -49]);
+    createTree([-20, 0, -49]);
+    createTree([30, -3, -49]);
+    createTree([40, -3, -49]);
+    createTree([55, -3, -59]);
+    createTree([24, -2, -23]);
+    createTree([52, -3, -54]);
+    createTree([-55, -3, -59]);
+    createTree([55, -3, -59]);
 
-    mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
-        mtl.preload();
+    createTree([-25, 5, 5]);
+
+    // mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
+    //     mtl.preload();
+    //     objLoader.setMaterials(mtl);
+    //     objLoader.load('./../textures/models/GTR.obj', (root) => {
+    //         scene.add(root);
+    //         scene_items.push(root);
+    //         root.position.x = -4;
+    //     });
+    // });
+
+    mtlloader.load("./../textures/models/Lowpoly_Helicopter.mtl", (mtl) => {
+        // mtl.preload();
         objLoader.setMaterials(mtl);
-        objLoader.load('./../textures/models/GTR.obj', (root) => {
+        objLoader.load('./../textures/models/Lowpoly_Helicopter.obj', (root) => {
+            root.scale.set(0.005, 0.005, 0.005);
+            root.position.set(-85, 18, -135);
             scene.add(root);
             scene_items.push(root);
-            root.position.x = -4;
         });
     });
 
-    
+    let waterMap = loader.load('./../textures/scenery/waterNormalMap.jpg');
+    reflectMaterial = new THREE.MeshStandardMaterial( {
+        color: 0x0011ab,
+        normalMap: waterMap,
+        envMap: cubeRenderTarget.texture,
+        roughness: 0.05,
+        metalness: 1,
+    } );
+
+    let lake = new THREE.Mesh(new THREE.BoxGeometry(160, 1, 160), reflectMaterial);
+    lake.position.x = -180;
+    lake.position.y = 3;
+    lake.position.z = -150;
+    scene.add(lake);
 
 
 
@@ -240,41 +267,17 @@ function createObjects() {
 function main() {
     setUpScene();
 
-    //load grass
-    // {
-    //     let planeSize = 40;
-    //     let ground = loader.load('./../textures/Minecraft/grass.jpeg');
-    //     ground.wrapS = THREE.RepeatWrapping;
-    //     ground.wrapT = THREE.RepeatWrapping;
-    //     ground.colorSpace = THREE.SRGBColorSpace;
-    //     let repeats = planeSize / 2;
-    //     ground.repeat.set(repeats, repeats);
-    //     let planeMat = new THREE.MeshPhongMaterial({
-    //         map: ground,
-    //         side: THREE.DoubleSide,
-    //     });
-    //     let planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    //     let mesh = new THREE.Mesh(planeGeo, planeMat);
-    //     mesh.rotation.x = Math.PI * -.5;
-    //     scene.add(mesh);
-    // }
-    //load cube
-
     createObjects();
     function render(time) {
         time *= 0.001;  // convert time to seconds
+        cubeCamera.update( renderer, scene );
 
         let speed = 3;
         let rot = time * speed;
         scene_items[0].rotation.y = rot;
         sky.material.uniforms["iTime"].value = time;
-        // scene_items[3].rotation.y = rot;
-        // objects.forEach((obj, ndx) => {
-        //   let speed = 1 + ndx * .1;
-        //   let rot = time * speed;
-        //   obj.rotation.x = rot;
-        //   obj.rotation.y = rot;
-        // });
+        
+        cubeCamera.position.copy(camera.position);
         
         renderer.render(scene, camera);
         requestAnimationFrame(render);

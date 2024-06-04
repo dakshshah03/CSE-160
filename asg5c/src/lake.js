@@ -1,6 +1,6 @@
 import {
     BoxGeometry,
-    SphereGeometry,
+    PlaneGeometry,
     Mesh,
     ShaderMaterial,
     UniformsUtils,
@@ -8,27 +8,30 @@ import {
 } from "three";
 import * as THREE from 'three';
 
-class Sky extends Mesh {
+class Lake extends Mesh {
     constructor() {
-        let shader = Sky.SkyShader;
+        let shader = Lake.LakeShader;
 
         let material = new ShaderMaterial({
             name: shader.name,
             uniforms: UniformsUtils.clone(shader.uniforms),
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader,
+            combine: THREE.MixOperation,
             side: BackSide,
             depthWrite: false,
         });
 
-        super(new SphereGeometry(1, 30, 25), material);
+        // super(new PlaneGeometry(10, 10, 1, 1), material);
+        // this.rotation.x = Math.PI / 2;
+        super(new BoxGeometry(1, 1, 1), material);
 
-        this.isSky = true;
+        this.isLake = true;
         this.iTime = 0;
     }
 }
-Sky.SkyShader = {
-    name: 'AuroraShader',
+Lake.LakeShader = {
+    name: 'LakeShader',
 
     uniforms: {
         "iTime": { value: 0.0 },
@@ -42,7 +45,6 @@ Sky.SkyShader = {
 
             void main() {
                 vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-
                 v_WorldDirection = normalize( worldPosition.xyz - cameraPosition );
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
@@ -188,13 +190,7 @@ Sky.SkyShader = {
                 float fade = smoothstep(0.,0.01,abs(brd.y))*0.1+0.9;
                 col = bg(rd)*fade;
                
-                if (rd.y > 0.){
-                    vec4 aur = smoothstep(0.,1.5,aurora(ro,rd))*fade;
-                    col += stars(rd);
-                    col = col*(1.-aur.a) + aur.rgb;
-                }
-                else //Reflections
-                {
+                if (rd.y <= 0.){
                      rd.y = abs(rd.y);
                      col = bg(rd)*fade*0.6;
                      vec4 aur = smoothstep(0.0,2.5,aurora(ro,rd));
@@ -213,4 +209,4 @@ Sky.SkyShader = {
 
 
 
-export { Sky };
+export { Lake };
