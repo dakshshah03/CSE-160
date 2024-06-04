@@ -73,28 +73,17 @@ function setUpScene() {
 
     cubeCamera = new THREE.CubeCamera( 1, 5000, cubeRenderTarget );
 
-    reflectMaterial = new THREE.MeshStandardMaterial( {
-        color: 0x0011ab,
-        envMap: cubeRenderTarget.texture,
-        roughness: 0.05,
-        metalness: 0.90,
-    } );
-
-    let c = new THREE.Mesh(new THREE.BoxGeometry(160, 1, 160), reflectMaterial);
-    c.position.x = -180;
-    c.position.y = 3;
-    c.position.z = -150;
-    scene.add(c);
 
     let fov = 100;
     let aspect = 2;  // the canvas default
     let near = 0.1;
     let far = 2000; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    camera.position.z = 5;
-    camera.position.x = -4;
-    camera.position.y = 2;
-
+    // camera.position.z = -90;
+    // camera.position.x = 16;
+    // camera.position.y = -142;
+    camera.position.set(-85, 30, -155);
+    // camera.lookAt(-90, 16, -142);
     // headlights
     let color = 0xFFFFFF;
     let intensity = 5;
@@ -118,7 +107,7 @@ function setUpScene() {
     scene.add(light3);
 
     controls = new OrbitControls( camera, canvas );
-	controls.target.set( 0, 1, 0 );
+	controls.target.set(-90, 30, -142);
 	controls.update();
 }
 
@@ -234,26 +223,42 @@ function createObjects() {
     createTree([55, -3, -59]);
 
     createTree([-25, 5, 5]);
-    // create
 
-    // let plane = new THREE.Mesh(
-    //     new THREE.PlaneGeometry(10, 10, 1, 1),
-    //     new THREE.MeshBasicMaterial({ color: 0xffffff, map: renderTarget.texture })
-    // );
-    // plane.rotation.x = -Math.PI / 2;
-    // scene.add(plane);
+    // mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
+    //     mtl.preload();
+    //     objLoader.setMaterials(mtl);
+    //     objLoader.load('./../textures/models/GTR.obj', (root) => {
+    //         scene.add(root);
+    //         scene_items.push(root);
+    //         root.position.x = -4;
+    //     });
+    // });
 
-    mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
-        mtl.preload();
+    mtlloader.load("./../textures/models/Lowpoly_Helicopter.mtl", (mtl) => {
+        // mtl.preload();
         objLoader.setMaterials(mtl);
-        objLoader.load('./../textures/models/GTR.obj', (root) => {
+        objLoader.load('./../textures/models/Lowpoly_Helicopter.obj', (root) => {
+            root.scale.set(0.005, 0.005, 0.005);
+            root.position.set(-85, 18, -135);
             scene.add(root);
             scene_items.push(root);
-            root.position.x = -4;
         });
     });
 
-    
+    let waterMap = loader.load('./../textures/scenery/waterNormalMap.jpg');
+    reflectMaterial = new THREE.MeshStandardMaterial( {
+        color: 0x0011ab,
+        normalMap: waterMap,
+        envMap: cubeRenderTarget.texture,
+        roughness: 0.05,
+        metalness: 1,
+    } );
+
+    let lake = new THREE.Mesh(new THREE.BoxGeometry(160, 1, 160), reflectMaterial);
+    lake.position.x = -180;
+    lake.position.y = 3;
+    lake.position.z = -150;
+    scene.add(lake);
 
 
 
@@ -261,26 +266,6 @@ function createObjects() {
 
 function main() {
     setUpScene();
-
-    //load grass
-    // {
-    //     let planeSize = 40;
-    //     let ground = loader.load('./../textures/Minecraft/grass.jpeg');
-    //     ground.wrapS = THREE.RepeatWrapping;
-    //     ground.wrapT = THREE.RepeatWrapping;
-    //     ground.colorSpace = THREE.SRGBColorSpace;
-    //     let repeats = planeSize / 2;
-    //     ground.repeat.set(repeats, repeats);
-    //     let planeMat = new THREE.MeshPhongMaterial({
-    //         map: ground,
-    //         side: THREE.DoubleSide,
-    //     });
-    //     let planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-    //     let mesh = new THREE.Mesh(planeGeo, planeMat);
-    //     mesh.rotation.x = Math.PI * -.5;
-    //     scene.add(mesh);
-    // }
-    //load cube
 
     createObjects();
     function render(time) {
@@ -293,21 +278,6 @@ function main() {
         sky.material.uniforms["iTime"].value = time;
         
         cubeCamera.position.copy(camera.position);
-        // lake.material.uniforms["iTime"].value = time;
-        // scene_items[3].rotation.y = rot;
-        // objects.forEach((obj, ndx) => {
-        //   let speed = 1 + ndx * .1;
-        //   let rot = time * speed;
-        //   obj.rotation.x = rot;
-        //   obj.rotation.y = rot;
-        // });
-        
-        // renderer.setRenderTarget(renderTarget);
-        // mirrorCamera.position.copy(camera.position);
-        // mirrorCamera.rotation.copy(camera.rotation);
-        // // mirrorCamera.rotation.x *= -1;
-        // renderer.render(scene, mirrorCamera);
-        // renderer.setRenderTarget(null);
         
         renderer.render(scene, camera);
         requestAnimationFrame(render);
