@@ -1,5 +1,6 @@
 import {
     BoxGeometry,
+    SphereGeometry,
     Mesh,
     ShaderMaterial,
     UniformsUtils,
@@ -20,7 +21,7 @@ class Sky extends Mesh {
             depthWrite: false,
         });
 
-        super(new BoxGeometry(1, 1, 1), material);
+        super(new SphereGeometry(1, 30, 25), material);
 
         this.isSky = true;
         this.iTime = 0;
@@ -30,7 +31,7 @@ Sky.SkyShader = {
     name: 'AuroraShader',
 
     uniforms: {
-        "iTime": { value: Sky.iTime },
+        "iTime": { value: 0.0 },
         "cameraPosition": { value: new THREE.Vector3() },
         // "invProjectionMatrix": { value: new THREE.Matrix4() },
         // "invViewMatrix": { value: new THREE.Matrix4() }

@@ -68,7 +68,7 @@ function setUpScene() {
     let fov = 100;
     let aspect = 2;  // the canvas default
     let near = 0.1;
-    let far = 1000; 
+    let far = 2000; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
     camera.position.z = 5;
     camera.position.x = -4;
@@ -267,7 +267,7 @@ function main() {
         let speed = 3;
         let rot = time * speed;
         scene_items[0].rotation.y = rot;
-        sky.iTime = time;
+        sky.material.uniforms["iTime"].value = time;
         // scene_items[3].rotation.y = rot;
         // objects.forEach((obj, ndx) => {
         //   let speed = 1 + ndx * .1;
