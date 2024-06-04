@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { Sky } from "./sky.js";
 
 
 let canvas;
@@ -14,6 +15,7 @@ let objLoader;
 let controls;
 let mtlloader;
 let scene_items;
+let sky;
 
 function setUpScene() {
     canvas = document.querySelector('#c');
@@ -25,18 +27,20 @@ function setUpScene() {
     objLoader = new OBJLoader();
     mtlloader = new MTLLoader();
 
-
+    sky = new Sky();
+    sky.scale.setScalar(1000);
+    scene.add(sky);
 
     
-    scene.background = cubeLoader.load([
-        './../textures/sky/px.png',
-        './../textures/sky/nx.png',
-        './../textures/sky/py.png',
-        './../textures/sky/ny.png',
-        './../textures/sky/pz.png',
-        './../textures/sky/nz.png'
-    ]);
-    scene.background.colorSpace = THREE.SRGBColorSpace;
+    // scene.background = cubeLoader.load([
+    //     './../textures/sky/px.png',
+    //     './../textures/sky/nx.png',
+    //     './../textures/sky/py.png',
+    //     './../textures/sky/ny.png',
+    //     './../textures/sky/pz.png',
+    //     './../textures/sky/nz.png'
+    // ]);
+    // scene.background.colorSpace = THREE.SRGBColorSpace;
 
     loader.load('./../textures/scenery/SM_DiffJPG2.jpg', (texture) => {
         // texture.preload();
@@ -263,6 +267,7 @@ function main() {
         let speed = 3;
         let rot = time * speed;
         scene_items[0].rotation.y = rot;
+        sky.iTime = time;
         // scene_items[3].rotation.y = rot;
         // objects.forEach((obj, ndx) => {
         //   let speed = 1 + ndx * .1;

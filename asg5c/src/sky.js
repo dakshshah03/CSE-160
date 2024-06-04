@@ -1,10 +1,17 @@
-import { Mesh } from "three/src/Three.js";
+import {
+    BoxGeometry,
+    Mesh,
+    ShaderMaterial,
+    UniformsUtils,
+    BackSide
+} from "three";
+import * as THREE from 'three';
 
-class sky extends Mesh {
+class Sky extends Mesh {
     constructor() {
-        let shader = sky.SkyShader;
+        let shader = Sky.SkyShader;
 
-        let material = new ShaderMaterial( {
+        let material = new ShaderMaterial({
             name: shader.name,
             uniforms: UniformsUtils.clone(shader.uniforms),
             vertexShader: shader.vertexShader,
@@ -13,22 +20,23 @@ class sky extends Mesh {
             depthWrite: false,
         });
 
-        super(new BoxGeometry(1,1,1), material);
+        super(new BoxGeometry(1, 1, 1), material);
 
         this.isSky = true;
+        this.iTime = 0;
     }
+}
+Sky.SkyShader = {
+    name: 'AuroraShader',
 
-    SkyShader = {
-        name: 'AuroraShader',
+    uniforms: {
+        "iTime": { value: Sky.iTime },
+        "cameraPosition": { value: new THREE.Vector3() },
+        // "invProjectionMatrix": { value: new THREE.Matrix4() },
+        // "invViewMatrix": { value: new THREE.Matrix4() }
+    },
 
-        uniforms: {
-            "iTime": { value: this.iTime },
-            "cameraPosition": { value: new Vector3() },
-            "invProjectionMatrix": { value: new Matrix4() },
-            "invViewMatrix": { value: new Matrix4() }
-        },
-
-        vertexShader: `
+    vertexShader: `
             varying vec3 v_WorldDirection;
 
             void main() {
@@ -40,13 +48,13 @@ class sky extends Mesh {
             }
         `,
 
-        fragmentShader: `
+    fragmentShader: `
             precision mediump float;
 
             uniform float iTime;
-            uniform vec3 camerPosition
-            uniform mat4 invProjectionMatrix;
-            uniform mat4 invViewMatrix;
+            // uniform vec3 cameraPosition;
+            // uniform mat4 invProjectionMatrix;
+            // uniform mat4 invViewMatrix;
             varying vec3 v_WorldDirection;
 
             // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
@@ -165,7 +173,8 @@ class sky extends Mesh {
             }
 `
 
-    }
-
-
 }
+
+
+
+export { Sky };
