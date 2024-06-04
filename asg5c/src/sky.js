@@ -1,0 +1,171 @@
+import { Mesh } from "three/src/Three.js";
+
+class sky extends Mesh {
+    constructor() {
+        let shader = sky.SkyShader;
+
+        let material = new ShaderMaterial( {
+            name: shader.name,
+            uniforms: UniformsUtils.clone(shader.uniforms),
+            vertexShader: shader.vertexShader,
+            fragmentShader: shader.fragmentShader,
+            side: BackSide,
+            depthWrite: false,
+        });
+
+        super(new BoxGeometry(1,1,1), material);
+
+        this.isSky = true;
+    }
+
+    SkyShader = {
+        name: 'AuroraShader',
+
+        uniforms: {
+            "iTime": { value: this.iTime },
+            "cameraPosition": { value: new Vector3() },
+            "invProjectionMatrix": { value: new Matrix4() },
+            "invViewMatrix": { value: new Matrix4() }
+        },
+
+        vertexShader: `
+            varying vec3 v_WorldDirection;
+
+            void main() {
+                vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+
+                v_WorldDirection = normalize( worldPosition.xyz - cameraPosition );
+
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            }
+        `,
+
+        fragmentShader: `
+            precision mediump float;
+
+            uniform float iTime;
+            uniform vec3 camerPosition
+            uniform mat4 invProjectionMatrix;
+            uniform mat4 invViewMatrix;
+            varying vec3 v_WorldDirection;
+
+            // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
+            // Contact the author for other licensing options
+
+            /*
+                
+                There are two main hurdles I encountered rendering this effect. 
+                First, the nature of the texture that needs to be generated to get a believable effect
+                needs to be very specific, with large scale band-like structures, small scale non-smooth variations
+                to create the trail-like effect, a method for animating said texture smoothly and finally doing all
+                of this cheaply enough to be able to evaluate it several times per fragment/pixel.
+
+                The second obstacle is the need to render a large volume while keeping the computational cost low.
+                Since the effect requires the trails to extend way up in the atmosphere to look good, this means
+                that the evaluated volume cannot be as constrained as with cloud effects. My solution was to make
+                the sample stride increase polynomially, which works very well as long as the trails are lower opcaity than
+                the rest of the effect. Which is always the case for auroras.
+
+                After that, there were some issues with getting the correct emission curves and removing banding at lowered
+                sample densities, this was fixed by a combination of sample number influenced dithering and slight sample blending.
+
+                N.B. the base setup is from an old shader and ideally the effect would take an arbitrary ray origin and
+                direction. But this was not required for this demo and would be trivial to fix.
+            */
+
+
+            #define time iTime
+
+            // helper functions
+            mat2 mm2(in float a){float c = cos(a), s = sin(a);return mat2(c,s,-s,c);}
+            mat2 m2 = mat2(0.95534, 0.29552, -0.29552, 0.95534);
+            float tri(in float x){return clamp(abs(fract(x)-.5),0.01,0.49);}
+            vec2 tri2(in vec2 p){return vec2(tri(p.x)+tri(p.y),tri(p.y+tri(p.x)));}
+            
+            // noise function
+            float triNoise2d(in vec2 p, float spd)
+            {
+                float z=1.8;
+                float z2=2.5;
+                float rz = 0.;
+                p *= mm2(p.x*0.06);
+                vec2 bp = p;
+                for (float i=0.; i<5.; i++ )
+                {
+                    vec2 dg = tri2(bp*1.85)*.75;
+                    dg *= mm2(time*spd);
+                    p -= dg/z2;
+
+                    bp *= 1.3;
+                    z2 *= .45;
+                    z *= .42;
+                    p *= 1.21 + (rz-1.0)*.02;
+                    
+                    rz += tri(p.x+tri(p.y))*z;
+                    p*= -m2;
+                }
+                return clamp(1./pow(rz*29., 1.3),0.,.55);
+            }
+
+            float hash21(in vec2 n){ return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453); }
+
+            // aurora function
+            vec4 aurora(vec3 ro, vec3 rd)
+            {
+                vec4 col = vec4(0);
+                vec4 avgCol = vec4(0);
+                
+                for(float i=0.;i<50.;i++)
+                {
+                    float of = 0.006*hash21(gl_FragCoord.xy)*smoothstep(0.,15., i);
+                    float pt = ((.8+pow(i,1.4)*.002)-ro.y)/(rd.y*2.+0.4);
+                    pt -= of;
+                    vec3 bpos = ro + pt*rd;
+                    vec2 p = bpos.zx;
+                    float rzt = triNoise2d(p, 0.06);
+                    vec4 col2 = vec4(0,0,0, rzt);
+                    col2.rgb = (sin(1.-vec3(2.15,-.5, 1.2)+i*0.043)*0.5+0.5)*rzt;
+                    avgCol =  mix(avgCol, col2, .5);
+                    col += avgCol*exp2(-i*0.065 - 2.5)*smoothstep(0.,5., i);
+                    
+                }
+                
+                col *= (clamp(rd.y*15.+.4,0.,1.));
+
+                return col*1.8;
+            }
+
+            void main(void)
+            {
+                vec3 rd = normalize(v_WorldDirection); // set ray direction
+                vec3 ro = cameraPosition; // set camera position
+
+                vec3 col = vec3(0.0);
+                vec3 brd = rd;
+                float fade = smoothstep(0.,0.01,abs(brd.y))*0.1+0.9;
+
+               
+                if (rd.y > 0.){
+                    vec4 aur = smoothstep(0.,1.5,aurora(ro,rd))*fade;
+                    col = col*(1.-aur.a) + aur.rgb;
+                }
+                else //Reflections
+                {
+                     rd.y = abs(rd.y);
+                     //col = bg(rd)*fade*0.6;
+                     vec4 aur = smoothstep(0.0,2.5,aurora(ro,rd));
+                     //col += stars(rd)*0.1;
+                     col = col*(1.-aur.a) + aur.rgb;
+                     vec3 pos = ro + ((0.5-ro.y)/rd.y)*rd;
+                     float nz2 = triNoise2d(pos.xz*vec2(.5,.7), 0.);
+                     col += mix(vec3(0.2,0.25,0.5)*0.08,vec3(0.3,0.3,0.5)*0.7, nz2*0.4);
+                }
+                
+                gl_FragColor = vec4(col, 1.);
+            }
+`
+
+    }
+
+
+}
