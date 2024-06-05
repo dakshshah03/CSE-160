@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Sky } from "./sky.js";
 
 
@@ -17,11 +18,31 @@ let mtlloader;
 let sky;
 let cubeCamera, cubeRenderTarget;
 let reflectMaterial;
+let parameters;
+let gui;
 
 function setUpScene() {
     canvas = document.querySelector('#c');
 
     scene = new THREE.Scene();
+
+    parameters = {
+        performanceMode: true,
+        // reflectionMode: true,
+        speed: 1.0,
+    };
+
+    gui = new GUI();
+    gui.add(parameters, 'performanceMode').name('Performance Mode').onChange((value) => {
+        performanceMode = value;
+        console.log("Performance Mode: " + parameters.performanceMode);
+    });
+    // gui.add(parameters, 'reflectionMode').name('Reflection Mode').onChange((value) => {
+    //     reflectionMode = value;
+    //     console.log("Reflection Mode: " + parameters.reflectionMode);
+    // });
+
+    gui.add(parameters, 'speed', 1.0, 10.0);
 
     loader = new THREE.TextureLoader();
     cubeLoader = new THREE.CubeTextureLoader();
@@ -61,14 +82,12 @@ function setUpScene() {
 
     cubeCamera = new THREE.CubeCamera( 1, 5000, cubeRenderTarget );
 
-
     let fov = 100;
     let aspect = 2;  // the canvas default
     let near = 0.1;
     let far = 2000; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
     camera.position.set(-85, 30, -155);
-
 
     let color = 0xFFFFFF;
     let intensity = 2;
@@ -199,8 +218,8 @@ function createObjects() {
     createTree([-95, 13, -145]);
     
     createTree([-115, 6, -105]);
-    createTree([-95, 13, -145]);
-    createTree([-95, 13, -145]);    
+    // createTree([-95, 13, -145]);
+    // createTree([-95, 13, -145]);    
 
     mtlloader.load("./../textures/models/Lowpoly_Helicopter.mtl", (mtl) => {
         // mtl.preload();
@@ -223,6 +242,9 @@ function createObjects() {
         metalness: 1,
     } );
 
+    gui.add(reflectMaterial, 'roughness', 0, 1);
+    gui.add(reflectMaterial, 'metalness', 0, 1);
+
     let lake = new THREE.Mesh(new THREE.BoxGeometry(160, 1, 160), reflectMaterial);
     lake.position.set(-180, 3, -150);
     scene.add(lake);
@@ -241,14 +263,20 @@ function main() {
     setUpScene();
 
     createObjects();
+    
     function render(time) {
         time *= 0.001;  // convert time to seconds
-        cubeCamera.update( renderer, scene );
-
-        let speed = 3;
-        let rot = time * speed;
-        // scene_items[0].rotation.y = rot;
-        sky.material.uniforms["iTime"].value = time;
+        if(parameters.performanceMode) {
+            console.log("Performance Mode on");
+            if(Math.abs(time % 0.500) < 0.040) { //update reflections
+                cubeCamera.update( renderer, scene );
+            }
+        } else {
+            console.log("Performance mode off");
+            cubeCamera.update( renderer, scene );
+        }
+        
+        sky.material.uniforms["iTime"].value = time * parameters.speed;
         
         cubeCamera.position.copy(camera.position);
         
