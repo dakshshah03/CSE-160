@@ -264,6 +264,9 @@ function createObjects() {
     lake2.position.set(-375, -2.5, -250);
     scene.add(lake2);
 
+    scene.fog = new THREE.Fog(0x2d6e7a, 1, 500);
+    THREE.ShaderChunk.fog_vertex = "#ifdef USE_FOG\n\tvFogDepth = length( mvPosition );\n#endif";
+
 
 }
 
