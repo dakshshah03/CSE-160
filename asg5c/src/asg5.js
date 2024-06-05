@@ -3,7 +3,6 @@ import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Sky } from "./sky.js";
-// import { Lake } from "./lake.js";
 
 
 let canvas;
@@ -59,12 +58,12 @@ function setUpScene() {
                 }
             });
             scene.add(root);
-            scene_items.push(root);
+            // scene_items.push(root);
         });
     });
 
     renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth*0.98, window.innerHeight*0.95 );
 
     // renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight );
     // document.body.appendChild( renderer.domElement );
@@ -79,35 +78,48 @@ function setUpScene() {
     let near = 0.1;
     let far = 2000; 
     camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-    // camera.position.z = -90;
-    // camera.position.x = 16;
-    // camera.position.y = -142;
     camera.position.set(-85, 30, -155);
-    // camera.lookAt(-90, 16, -142);
-    // headlights
+
+
     let color = 0xFFFFFF;
-    let intensity = 5;
-    let light = new THREE.PointLight(color, intensity);
-    light.position.set(-5, 1.5, 3.5);
+    let intensity = 2;
+    let light = new THREE.SpotLight(color, 100);
+    light.distance = 50;
+    light.position.set(-75, 18, -133);
+    light.target.position.set(-300, 18, -1);
     scene.add(light);
-    light = new THREE.PointLight(color, intensity);
-    light.position.set(-3.25, 1.5, 3.5);
-    scene.add(light);
+    scene.add( light.target ); 
+
+    // const spotLightHelper = new THREE.SpotLightHelper( light );
+    // scene.add( spotLightHelper );
 
 
-    color = 0x6EFFC1;
-    intensity = 2;
+    // headlights
+    // let color = 0xFFFFFF;
+    // let intensity = 5;
+    // let light = new THREE.PointLight(color, intensity);
+    // light.position.set(-5, 1.5, 3.5);
+    // scene.add(light);
+    // light = new THREE.PointLight(color, intensity);
+    // light.position.set(-3.25, 1.5, 3.5);
+    // scene.add(light);
+
+
+    color = 0x2d6e7a;
+    intensity = 5;
     let light2 = new THREE.AmbientLight(color, intensity);
     scene.add(light2);
 
-    color = 0x255675;
+    color = 0x51ad8f;
     intensity = 2;
     let light3 = new THREE.DirectionalLight(color, intensity);
     light3.position.set(4, 10, 4);
     scene.add(light3);
 
+    // camera.position.set(-300, 500, -300);
     controls = new OrbitControls( camera, canvas );
 	controls.target.set(-90, 30, -142);
+    // controls.target.set(-500, 50, -500);
 	controls.update();
 }
 
@@ -142,48 +154,41 @@ function createTree(location) {
     let trunk_geometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 16);
     let trunk_material = new THREE.MeshPhongMaterial({color: 0x6b5700});
     let trunk = new THREE.Mesh(trunk_geometry, trunk_material);
+    trunk.position.set(location[0], location[1], location[2]);
+    trunk.scale.set(2, 2, 2);
     scene.add(trunk);
-    trunk.position.x = location[0];
-    trunk.position.y = location[1];
-    trunk.position.z = location[2];
 
-    let leaves_material = new THREE.MeshPhongMaterial({color: 0x1c8e38});
+    let leaves_material = new THREE.MeshPhongMaterial({color: 0xddf0e2});
 
-    let leaf = new THREE.ConeGeometry(0.75, 1, 12);
+    let leaf = new THREE.ConeGeometry(0.75, 1, 6);
     let leaf1 = new THREE.Mesh(leaf, leaves_material);
-    leaf1.position.x = location[0];
-    leaf1.position.y = location[1] + 4;
-    leaf1.position.z = location[2];
+    leaf1.position.set(location[0], location[1] + 8, location[2]);
+    leaf1.scale.set(2, 2, 2);
 
-    leaf = new THREE.ConeGeometry(1, 1, 12);
+    leaf = new THREE.ConeGeometry(1, 1, 6);
     let leaf2 = new THREE.Mesh(leaf, leaves_material);
-    leaf2.position.x = location[0];
-    leaf2.position.y = location[1] + 3.5;
-    leaf2.position.z = location[2];
+    leaf2.position.set(location[0], location[1] + 7, location[2]);
+    leaf2.scale.set(2, 2, 2);
 
-    leaf = new THREE.ConeGeometry(1.25, 1, 12);
+    leaf = new THREE.ConeGeometry(1.25, 1, 6);
     let leaf3 = new THREE.Mesh(leaf, leaves_material);
-    leaf3.position.x = location[0];
-    leaf3.position.y = location[1] + 2.9;
-    leaf3.position.z = location[2];
+    leaf3.position.set(location[0], location[1] + 5.8, location[2]);
+    leaf3.scale.set(2, 2, 2);
 
-    leaf = new THREE.ConeGeometry(1.5, 1, 12);
+    leaf = new THREE.ConeGeometry(1.5, 1, 6);
     let leaf4 = new THREE.Mesh(leaf, leaves_material);
-    leaf4.position.x = location[0];
-    leaf4.position.y = location[1] + 2.3;
-    leaf4.position.z = location[2];
+    leaf4.position.set(location[0], location[1] + 4.6, location[2]);
+    leaf4.scale.set(2, 2, 2);
     
-    leaf = new THREE.ConeGeometry(1.75, 1, 12);
+    leaf = new THREE.ConeGeometry(1.75, 1, 6);
     let leaf5 = new THREE.Mesh(leaf, leaves_material);
-    leaf5.position.x = location[0];
-    leaf5.position.y = location[1] + 1.7;
-    leaf5.position.z = location[2];
+    leaf5.position.set(location[0], location[1] + 3.4, location[2]);
+    leaf5.scale.set(2, 2, 2);
     
-    leaf = new THREE.ConeGeometry(2, 1, 12);
+    leaf = new THREE.ConeGeometry(2, 1, 6);
     let leaf6 = new THREE.Mesh(leaf, leaves_material);
-    leaf6.position.x = location[0];
-    leaf6.position.y = location[1] + 1.1;
-    leaf6.position.z = location[2];
+    leaf6.position.set(location[0], location[1] + 2.2, location[2]);
+    leaf6.scale.set(2, 2, 2);
 
     scene.add(leaf1);
     scene.add(leaf2);   
@@ -195,17 +200,17 @@ function createTree(location) {
 
 function createObjects() {
     let sphere_geometry = new THREE.SphereGeometry(2, 30, 14);
-    let sphere_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/zigzag.jpg')});
-    let sph = new THREE.Mesh(sphere_geometry, sphere_material);
-    scene.add(sph);
-    sph.position.x = 5;
+    // let sphere_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/zigzag.jpg')});
+    // let sph = new THREE.Mesh(sphere_geometry, sphere_material);
+    // scene.add(sph);
+    // sph.position.x = 5;
 
 
 
     // creates an instance of all non-custom files
-    scene_items = [
-        sph,
-    ];
+    // scene_items = [
+    //     sph,
+    // ];
 
     createTree([12, 0, 0]);
     createTree([0, 0, 5]);
@@ -223,6 +228,12 @@ function createObjects() {
     createTree([55, -3, -59]);
 
     createTree([-25, 5, 5]);
+    createTree([-74, 15, -115]);
+    createTree([-95, 13, -145]);
+    
+    createTree([-115, 6, -105]);
+    createTree([-95, 13, -145]);
+    createTree([-95, 13, -145]);    
 
     // mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
     //     mtl.preload();
@@ -239,9 +250,10 @@ function createObjects() {
         objLoader.setMaterials(mtl);
         objLoader.load('./../textures/models/Lowpoly_Helicopter.obj', (root) => {
             root.scale.set(0.005, 0.005, 0.005);
-            root.position.set(-85, 18, -135);
+            root.position.set(-75, 18, -133);
+            root.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI/6);
             scene.add(root);
-            scene_items.push(root);
+            // scene_items.push(root);
         });
     });
 
@@ -255,11 +267,15 @@ function createObjects() {
     } );
 
     let lake = new THREE.Mesh(new THREE.BoxGeometry(160, 1, 160), reflectMaterial);
-    lake.position.x = -180;
-    lake.position.y = 3;
-    lake.position.z = -150;
+    lake.position.set(-180, 3, -150);
     scene.add(lake);
 
+    let lake2 = new THREE.Mesh(new THREE.BoxGeometry(250, 1, 350), reflectMaterial);
+    lake2.position.set(-375, -2.5, -250);
+    scene.add(lake2);
+
+    scene.fog = new THREE.Fog(0x2d6e7a, 1, 500);
+    THREE.ShaderChunk.fog_vertex = "#ifdef USE_FOG\n\tvFogDepth = length( mvPosition );\n#endif";
 
 
 }
@@ -274,7 +290,7 @@ function main() {
 
         let speed = 3;
         let rot = time * speed;
-        scene_items[0].rotation.y = rot;
+        // scene_items[0].rotation.y = rot;
         sky.material.uniforms["iTime"].value = time;
         
         cubeCamera.position.copy(camera.position);
