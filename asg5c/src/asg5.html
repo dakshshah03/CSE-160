@@ -1,12 +1,6 @@
 <!-- Daksh Shah -->
 <!-- 1953946 -->
 <!-- dakshah@ucsc.edu -->
-<!-- 
-Grader Notes:
-- 3 shapes, (technically 4 since there are 2 minecraft dirt blocks placed next to each other)
-- rotating torus around the car
-- car imported from mtl and obj files
- -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +9,15 @@ Grader Notes:
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Daksh Shah CSE 160 asg5</title>
     </head>
+
+    <style>
+        .stats {
+            position: fixed;
+            top: 0;
+            right: 0;
+        }
+        
+    </style>
 
     <script type="importmap">
         {
@@ -28,5 +31,19 @@ Grader Notes:
         <script type="module" src="asg5.js"></script>
         <script type="module" src="./../src/sky.js"></script>
         <canvas id="c"></canvas>
+        <div class="stats">
+            <!-- <script> javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='https://mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()</script> -->
+        </div>
     </body>
+    <br>
+    Daksh Shah <br>
+    1953946 <br>
+    dakshah@ucsc.edu <br>
+    Grader Notes: <br>
+    - Aurora modified and adapted from https://www.shadertoy.com/view/XtGGRt using a custom shader implemented in WebGL.<br>
+    - Stars/Auroras are animated within the fragment shader. <br>
+    - Water has reflections from the light of the auroras and from the surrounding environment with a NormalMap overlayed on top.<br>
+    - Terrain from https://sketchfab.com/3d-models/snowy-mountain-terrain-9fa3c56fd32746bcb0e06cd2c4229ca0 <br>
+    - Helicopter from https://www.cgtrader.com/free-3d-models/aircraft/helicopter/cartoon-low-poly-helicopter
+    
 </html>
