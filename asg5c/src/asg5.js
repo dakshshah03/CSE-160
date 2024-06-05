@@ -14,12 +14,7 @@ let cubeLoader;
 let objLoader;
 let controls;
 let mtlloader;
-let scene_items;
 let sky;
-// let lake;
-// let mirrorCamera;
-let renderTarget;
-// let view = new THREE.Vector3;
 let cubeCamera, cubeRenderTarget;
 let reflectMaterial;
 
@@ -36,12 +31,6 @@ function setUpScene() {
     sky = new Sky();
     sky.scale.setScalar(1000);
     scene.add(sky);
-
-    // lake = new Lake();
-    // lake.scale.setScalar(1000);
-    // // lake.position.y = 50.0;
-    // scene.add(lake);
-
 
     loader.load('./../textures/scenery/SM_DiffJPG2.jpg', (texture) => {
         // texture.preload();
@@ -92,17 +81,6 @@ function setUpScene() {
 
     // const spotLightHelper = new THREE.SpotLightHelper( light );
     // scene.add( spotLightHelper );
-
-
-    // headlights
-    // let color = 0xFFFFFF;
-    // let intensity = 5;
-    // let light = new THREE.PointLight(color, intensity);
-    // light.position.set(-5, 1.5, 3.5);
-    // scene.add(light);
-    // light = new THREE.PointLight(color, intensity);
-    // light.position.set(-3.25, 1.5, 3.5);
-    // scene.add(light);
 
 
     color = 0x2d6e7a;
@@ -200,17 +178,6 @@ function createTree(location) {
 
 function createObjects() {
     let sphere_geometry = new THREE.SphereGeometry(2, 30, 14);
-    // let sphere_material = new THREE.MeshPhongMaterial({map: loadColorTexture('./../textures/Minecraft/zigzag.jpg')});
-    // let sph = new THREE.Mesh(sphere_geometry, sphere_material);
-    // scene.add(sph);
-    // sph.position.x = 5;
-
-
-
-    // creates an instance of all non-custom files
-    // scene_items = [
-    //     sph,
-    // ];
 
     createTree([12, 0, 0]);
     createTree([0, 0, 5]);
@@ -234,16 +201,6 @@ function createObjects() {
     createTree([-115, 6, -105]);
     createTree([-95, 13, -145]);
     createTree([-95, 13, -145]);    
-
-    // mtlloader.load('./../textures/models/GTR.mtl', (mtl) => {
-    //     mtl.preload();
-    //     objLoader.setMaterials(mtl);
-    //     objLoader.load('./../textures/models/GTR.obj', (root) => {
-    //         scene.add(root);
-    //         scene_items.push(root);
-    //         root.position.x = -4;
-    //     });
-    // });
 
     mtlloader.load("./../textures/models/Lowpoly_Helicopter.mtl", (mtl) => {
         // mtl.preload();
