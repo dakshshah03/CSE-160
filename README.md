@@ -5,4 +5,4 @@ I highly dont recommend copying my assignments
 if you are taking this class
 
 
-after all, I did TA for the class for a while :)
+after all, I did TA this class for a while :)
